@@ -291,6 +291,63 @@
   /* 印刷用エリア (画面では非表示) */
   #printable-sheet { display: none; }
 
+  /* --- スマートフォン用レスポンシブ対応 --- */
+  @media (max-width: 600px) {
+    /* 全体の文字サイズを少し小さく */
+    body {
+      font-size: 16px;
+      padding: 10px;
+    }
+    
+    .container {
+      padding: 15px; /* コンテナの余白を減らす */
+      min-height: 450px; /* 高さも少し抑える */
+    }
+
+    /* タイトル類 */
+    h2 { font-size: 1.5rem; }
+    .sub-title { font-size: 1rem; }
+
+    /* 問題文：ここを大きく変更して1行に収まりやすくする */
+    .question-box {
+      font-size: 1.4rem; /* 2.2remから大幅縮小 */
+      padding: 15px;
+      min-height: 100px; /* 高さを減らす */
+    }
+
+    /* 選択肢ボタン：2行に収まるように調整 */
+    .choice-btn {
+      font-size: 1.1rem; /* 文字サイズ縮小 */
+      padding: 10px 5px; /* 余白縮小 */
+      min-width: 45%;    /* 画面幅の半分弱にして2個並ぶように誘導 */
+    }
+    .choices-grid {
+      gap: 8px; /* ボタン間の隙間を詰める */
+    }
+
+    /* 並べ替えボタン */
+    .word-btn, .answer-word {
+      font-size: 1.2rem;
+      padding: 8px 16px;
+    }
+    
+    /* 下部のボタン */
+    button.action-btn {
+      font-size: 1.2rem;
+      padding: 12px 30px;
+    }
+    
+    /* 上部の操作ボタン */
+    .top-controls {
+      top: 10px;
+      right: 10px;
+    }
+    .header-btn {
+      padding: 8px 12px;
+      font-size: 0.8rem;
+    }
+  }
+
   /* --- 印刷時の設定 --- */
   @media print {
     @page { size: A4; margin: 15mm; }
