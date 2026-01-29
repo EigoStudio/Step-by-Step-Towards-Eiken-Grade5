@@ -39,8 +39,10 @@
     width: 95%;
     max-width: 1200px;
     margin: 20px auto;
-    gap: 30px;
-    align-items: flex-start;
+    gap: 40px;
+    /* PC版: 上下中央揃え */
+    align-items: center; 
+    position: relative; /* ボタン配置の基準 */
   }
 
   /* 左パネル (イラスト) */
@@ -49,8 +51,6 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    position: sticky;
-    top: 20px;
   }
 
   /* 右パネル (コンテンツ) */
@@ -59,7 +59,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center; /* コンテンツを中央に寄せる */
     position: relative;
+    min-height: 600px; /* PC版で高さを確保して中央配置を見やすく */
   }
 
   /* --- 以下、各パーツのスタイル --- */
@@ -82,7 +84,7 @@
   .sub-title {
     font-size: 1rem;
     color: var(--accent-green);
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     text-align: center;
     font-weight: bold;
   }
@@ -117,13 +119,14 @@
     border: 4px solid #fff;
   }
 
-  /* 上部ボタンエリア */
+  /* 上部ボタンエリア (PC版: 右パネルの右上に固定) */
   .top-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
     display: flex;
-    justify-content: flex-end;
-    width: 100%;
     gap: 10px;
-    margin-bottom: 10px;
+    z-index: 10;
   }
 
   .header-btn {
@@ -303,6 +306,7 @@
 
   /* --- ★レスポンシブ設定 (スマホ・タブレット縦) --- */
   @media (max-width: 900px) {
+    /* 全体レイアウト：縦並び */
     .app-layout {
       flex-direction: column;
       align-items: center;
@@ -314,6 +318,7 @@
     .left-panel, .right-panel {
       width: 100%;
       flex: none;
+      min-height: auto;
     }
     
     /* スマホ版の画像の高さ制限 */
@@ -321,17 +326,18 @@
       max-height: 180px; 
     }
     
+    /* --- スマホ版のボタン位置変更：一番下へ --- */
     .top-controls {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      margin-bottom: 0;
-      width: auto;
+      position: static;      /* 固定を解除 */
+      order: 10;             /* Flexboxの並び順で一番下へ */
+      justify-content: center; /* 中央寄せ */
+      margin-top: 20px;      /* 上に少し隙間 */
+      width: 100%;
     }
 
     body { font-size: 14px; padding: 10px; }
     .container { padding: 10px 10px 20px 10px; min-height: 350px; }
-    h2 { font-size: 1.4rem; margin-top: 25px; }
+    h2 { font-size: 1.4rem; margin-top: 0; }
     .question-box { font-size: 1.3rem; min-height: 60px; padding: 10px; }
     .question-box.ja-text { font-size: 1.0rem !important; }
     
