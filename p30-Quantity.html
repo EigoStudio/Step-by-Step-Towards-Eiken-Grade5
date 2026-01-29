@@ -51,11 +51,11 @@
     display: flex; flex-direction: column;
   }
 
+  /* 管理ボタン：PCは右上 */
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
     color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
     font-weight: bold; background-color: var(--accent-brown); font-size: 0.8rem;
-    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
   }
 
   .question-box {
@@ -93,6 +93,7 @@
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
+  /* --- スマホ版調整 --- */
   @media (max-width: 600px) {
     .illustration-large { display: none; width: 100%; max-height: 25vh; }
     .illustration-large.active-mobile { display: block; }
@@ -166,7 +167,7 @@
 </div>
 
 <script>
-  // 【最重要】Q8以外からは "want more" を完全に削除しました
+  // 【超重要】Q8以外から余計な文言を完全に抹消しました。
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
     { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
@@ -185,7 +186,7 @@
   let currentIndex = 0;
   let selectedWord = "";
   let selectedBtn = null;
-  let resetTimer = null;
+  let ghostBusterTimer = null; // ゴースト退治用タイマー
 
   function initGame() {
     currentIndex = 0;
@@ -198,7 +199,7 @@
     const q = quizData[currentIndex];
     const colorCode = "#2e7d32"; 
     
-    // 表示前に一度中身を完全にクリア（ゴースト対策）
+    // 表示前に強制クリア
     qBox.innerHTML = "";
 
     if (q.isDialog) {
@@ -212,15 +213,16 @@
         html += '</div>';
         qBox.innerHTML = html;
     } else {
+        // q.q（データそのもの）を使って上書き
         qBox.innerHTML = q.q.replace('(　　)', `( <span style="color:${colorCode}">${word}</span> )`);
     }
   }
 
   function loadQuestion() {
-    // 次の問題に進むときにタイマーを解除
-    if (resetTimer) {
-        clearTimeout(resetTimer);
-        resetTimer = null;
+    // 次の問題に行く時に古いタイマーを抹殺
+    if (ghostBusterTimer) {
+        clearTimeout(ghostBusterTimer);
+        ghostBusterTimer = null;
     }
 
     selectedWord = "";
@@ -273,14 +275,12 @@
         selectedBtn.classList.remove('selected');
         msg.textContent = "Try again!";
         msg.className = "result-msg wrong";
+        selectedWord = "";
         
-        // 不正解の時に文字を消すタイマー
-        const currentIdxAtFailure = currentIndex; // 問題が変わっていないかチェック用
-        resetTimer = setTimeout(() => { 
-            if(currentIndex === currentIdxAtFailure) {
-                renderQuestionWithWord(); 
-            }
-            resetTimer = null;
+        // 失敗した時に文字を消すタイマー
+        ghostBusterTimer = setTimeout(() => { 
+            if(selectedWord === "") renderQuestionWithWord(); 
+            ghostBusterTimer = null;
         }, 1200);
     }
   }
