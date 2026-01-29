@@ -30,11 +30,11 @@
     margin: 0;
   }
 
-  h2 { font-size: 1.8rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
-  .sub-title { font-size: 0.9rem; color: var(--accent-green); margin-bottom: 5px; font-weight: bold; }
+  h2 { font-size: 1.6rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
+  .sub-title { font-size: 0.8rem; color: var(--accent-green); margin-bottom: 5px; font-weight: bold; }
 
   .illustration-container {
-    background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 10px;
+    background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; 
     width: 98vw; max-width: 1100px; border: 3px solid var(--highlight-bg);
   }
@@ -47,14 +47,14 @@
   .container {
     background: var(--card-bg); max-width: 900px; width: 100%; padding: 15px;
     border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
-    position: relative; border: 4px solid #fff; margin-bottom: 20px;
+    position: relative; border: 4px solid #fff; margin-bottom: 10px;
     display: flex; flex-direction: column;
   }
 
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
-    color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
-    font-weight: bold; background-color: var(--accent-brown); font-size: 0.8rem;
+    color: white; border: none; padding: 6px 12px; border-radius: 10px; cursor: pointer;
+    font-weight: bold; background-color: var(--accent-brown); font-size: 0.75rem;
   }
 
   .question-box {
@@ -88,22 +88,34 @@
     box-shadow: 0 4px 0 #33691e; font-weight: bold;
   }
 
-  .result-msg { margin-bottom: 5px; font-weight: bold; font-size: 1.4rem; min-height: 30px; }
+  .result-msg { margin-bottom: 5px; font-weight: bold; font-size: 1.3rem; min-height: 25px; }
   .correct { color: var(--accent-green); } .wrong { color: #c62828; }
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
+  /* --- スマホ版専用の凝縮設定 --- */
   @media (max-width: 600px) {
-    .illustration-large { display: none; width: 100%; max-height: 30vh; }
+    h2 { font-size: 1.3rem; margin: 2px 0; }
+    .sub-title { font-size: 0.75rem; margin-bottom: 2px; }
+    .illustration-container { padding: 5px; margin-bottom: 5px; }
+    .illustration-large { display: none; width: 100%; max-height: 25vh; } /* 30vhから25vhに縮小 */
     .illustration-large.active-mobile { display: block; }
-    .question-box { font-size: 1.15rem; min-height: 70px; padding: 12px 10px; margin-bottom: 10px; white-space: normal; line-height: 1.4; display: block; text-align: center; }
-    .choices-grid { flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
-    .choice-btn { font-size: 1rem; padding: 12px 5px; flex: 1 1 40%; white-space: normal; }
-    .container { min-height: 420px; padding-bottom: 20px; }
-    .controls { margin-top: auto; }
-    .action-btn { padding: 12px 40px; font-size: 1.3rem; width: 90%; }
+    
+    .container { min-height: auto; padding: 10px; margin-bottom: 5px; }
+    
+    .question-box { font-size: 1.1rem; min-height: 50px; padding: 8px 10px; margin-bottom: 8px; line-height: 1.3; display: block; text-align: center; }
+    .dialog-line { padding: 5px 8px; font-size: 1rem; line-height: 1.3; margin-bottom: 2px; }
+    
+    .choices-grid { flex-wrap: wrap; justify-content: center; margin-bottom: 8px; gap: 5px; }
+    .choice-btn { font-size: 0.95rem; padding: 8px 2px; flex: 1 1 45%; }
+    
+    .controls { margin-top: 0; padding-top: 0; } /* autoから0に変更 */
+    .action-btn { padding: 8px 30px; font-size: 1.2rem; width: 90%; }
+    .result-msg { font-size: 1rem; margin-bottom: 2px; min-height: 20px; }
+    .progress-container { margin-bottom: 5px; height: 8px; }
   }
 
+  /* --- 印刷用 A4設定 --- */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -122,12 +134,12 @@
 <body>
 
 <div class="top-controls">
-  <button class="header-btn" onclick="window.print()">🖨️ プリント (PDF)</button>
+  <button class="header-btn" onclick="window.print()">🖨️ プリント</button>
   <button class="header-btn" onclick="initGame()">🔄 最初から</button>
 </div>
 
 <h2>Quantifiers Game</h2>
-<div class="sub-title">イラストを見ながら正しい言葉を選ぼう</div>
+<div class="sub-title">イラストを見て言葉を選ぼう</div>
 
 <div class="illustration-container">
   <div class="img-pair">
@@ -164,7 +176,6 @@
 </div>
 
 <script>
-  // 文言を元のシンプルな状態に修正しました
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
     { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
@@ -174,7 +185,7 @@
     { isDialog: true, q: ["A: How many books do you have?", "B: (　　) one!"], options: ["About", "Many", "Only", "Some"], answer: "Only" },
     { q: "7. I see (　　) ten children. They are playing.", options: ["many", "some", "about", "a few"], answer: "about" },
     { q: "8. I have (　　) water in my glass. I want more, please.", options: ["a little", "a lot of", "a few", "many"], answer: "a little" },
-    { q: "9. I have (　　) hats.", options: ["a little", "many", "some", "about"], answer: "many" },
+    { q: "9. I have (　　) hats.", options: ["a little", "a few", "some", "about"], answer: "a few" },
     { q: "10. She is rich! She has so (　　) money.", options: ["many", "much", "a few", "about"], answer: "much" },
     { q: "11. He drinks (　　) water.", options: ["many", "a little", "a lot of", "a few"], answer: "a lot of" },
     { q: "12. He is carrying (　　) books.", options: ["much", "a little", "some", "only"], answer: "some" }
