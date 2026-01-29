@@ -28,12 +28,12 @@
     align-items: center;
     padding: 10px; 
     margin: 0;
+    min-height: 100vh;
   }
 
   h2 { font-size: 1.5rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
   .sub-title { font-size: 0.8rem; color: var(--accent-green); margin-bottom: 10px; font-weight: bold; }
 
-  /* イラストエリア */
   .illustration-container {
     background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; 
@@ -45,14 +45,12 @@
     max-height: 45vh; object-fit: contain;
   }
 
-  /* クイズコンテナ */
   .container {
     background: var(--card-bg); max-width: 800px; width: 100%; padding: 20px;
     border-radius: 25px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
-    border: 4px solid #fff; margin-bottom: 10px;
+    border: 4px solid #fff; margin-bottom: 20px;
   }
 
-  /* 問題文：PC版は従来通り */
   .question-box {
     font-size: 1.7rem; margin-bottom: 15px; 
     min-height: 80px; height: auto;
@@ -89,7 +87,6 @@
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 15px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
-  /* プリント/最初からボタン：一番下へ */
   .footer-controls { display: flex; gap: 15px; justify-content: center; width: 100%; margin: 20px 0 40px 0; }
   .footer-btn {
     color: white; border: none; padding: 10px 20px; border-radius: 12px;
@@ -97,29 +94,16 @@
     box-shadow: 0 3px 0 rgba(0,0,0,0.2);
   }
 
-  /* --- スマホ版：崩れを徹底防止するための縛り解放 --- */
   @media (max-width: 600px) {
     body { padding: 5px; }
     .illustration-large { display: none; width: 100%; max-height: 35vh; }
     .illustration-large.active-mobile { display: block; }
-    
-    /* 縛りを解放：flexを捨てて標準のブロック表示に */
-    .question-box { 
-      display: block; 
-      text-align: center;
-      font-size: 1.1rem; 
-      padding: 15px 8px; 
-      line-height: 1.6; 
-      min-height: auto; 
-      height: auto;
-      overflow-wrap: break-word; /* 単語の途切を防ぐ */
-    }
+    .question-box { display: block; text-align: center; font-size: 1.1rem; padding: 15px 8px; line-height: 1.6; min-height: auto; height: auto; }
     .dialog-line { font-size: 1rem; padding: 8px; }
     .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 42%; }
     .action-btn { width: 90%; font-size: 1.3rem; }
   }
 
-  /* 印刷用 */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -180,6 +164,7 @@
 </div>
 
 <script>
+  // Q9の選択肢から some を削除し、much に変更しました
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
     { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
@@ -189,7 +174,7 @@
     { isDialog: true, q: ["A: How many books do you have?", "B: (　　) one!"], options: ["About", "Many", "Only", "Some"], answer: "Only" },
     { q: "7. I see (　　) ten children. They are playing.", options: ["many", "some", "about", "a few"], answer: "about" },
     { q: "8. I have (　　) water in my glass. I want more, please.", options: ["a little", "a lot of", "a few", "many"], answer: "a little" },
-    { q: "9. I have (　　) hats.", options: ["a little", "a few", "some", "about"], answer: "a few" },
+    { q: "9. I have (　　) hats.", options: ["a little", "a few", "much", "about"], answer: "a few" },
     { q: "10. She is rich! She has so (　　) money.", options: ["many", "much", "a few", "about"], answer: "much" },
     { q: "11. He drinks (　　) water.", options: ["many", "a little", "a lot of", "a few"], answer: "a lot of" },
     { q: "12. He is carrying (　　) books.", options: ["much", "a little", "some", "only"], answer: "some" }
