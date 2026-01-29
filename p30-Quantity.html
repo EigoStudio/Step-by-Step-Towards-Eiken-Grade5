@@ -33,7 +33,6 @@
   h2 { font-size: 1.5rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
   .sub-title { font-size: 0.8rem; color: var(--accent-green); margin-bottom: 5px; font-weight: bold; }
 
-  /* イラストエリア */
   .illustration-container {
     background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 10px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; 
@@ -45,18 +44,18 @@
     max-height: 50vh; object-fit: contain;
   }
 
-  /* コンテナ：PC版は中身に合わせる */
   .container {
     background: var(--card-bg); max-width: 900px; width: 100%; padding: 15px;
     border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
-    position: relative; border: 4px solid #fff; margin-bottom: 20px;
-    display: flex; flex-direction: column;
+    position: relative; border: 4px solid #fff; margin-bottom: 10px;
   }
 
+  /* 管理ボタン（PC版は右上） */
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
     color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
     font-weight: bold; background-color: var(--accent-brown); font-size: 0.8rem;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.2);
   }
 
   .question-box {
@@ -83,7 +82,7 @@
   .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; }
   .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
 
-  .controls { margin-top: 5px; padding-top: 5px; }
+  .controls { margin-top: 10px; }
   .action-btn {
     padding: 10px 50px; font-size: 1.4rem; background-color: var(--accent-green);
     color: white; border: none; border-radius: 30px; cursor: pointer;
@@ -94,30 +93,32 @@
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
-  /* --- スマホ版：徹底的に1画面に収める調整 --- */
+  /* --- スマホ版：配置の入れ替え --- */
   @media (max-width: 600px) {
     .illustration-large { display: none; width: 100%; max-height: 25vh; }
     .illustration-large.active-mobile { display: block; }
     
-    .container { 
-      min-height: 420px; /* ボタンを下に押しやるために高さを確保 */
-      padding: 10px; 
+    .container { padding: 10px; margin-bottom: 15px; }
+    
+    /* 管理ボタンを「一番下」へ移動 */
+    .top-controls { 
+      position: static; /* 絶対配置を解除 */
+      margin-top: 20px; 
+      justify-content: center;
+      width: 100%;
     }
+    .header-btn { padding: 10px 20px; font-size: 0.9rem; }
+
+    .question-box { font-size: 1.1rem; min-height: 50px; padding: 10px; line-height: 1.4; display: block; }
+    .choices-grid { flex-wrap: wrap; gap: 5px; }
+    .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 45%; }
     
-    .question-box { 
-      font-size: 1.1rem; min-height: auto; padding: 10px; margin-bottom: 8px; 
-      line-height: 1.4; white-space: normal; display: block;
-    }
-    
-    .choices-grid { flex-wrap: wrap; margin-bottom: 10px; gap: 5px; }
-    .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 42%; }
-    
-    /* ボタンを強制的にコンテナの最下部に配置 */
-    .controls { margin-top: auto; padding-top: 10px; padding-bottom: 10px; }
-    .action-btn { width: 95%; padding: 12px 0; }
+    /* 回答ボタンは選択肢のすぐ下 */
+    .controls { margin-top: 10px; }
+    .action-btn { width: 90%; padding: 12px 0; }
   }
 
-  /* --- 印刷用設定 --- */
+  /* --- 印刷用 --- */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -134,11 +135,6 @@
 </style>
 </head>
 <body>
-
-<div class="top-controls">
-  <button class="header-btn" onclick="window.print()">🖨️ プリント (PDF)</button>
-  <button class="header-btn" onclick="initGame()">🔄 最初から</button>
-</div>
 
 <h2>Quantifiers Game</h2>
 <div class="sub-title">イラストを見て正しい言葉を選ぼう</div>
@@ -163,6 +159,11 @@
     <button class="action-btn" id="checkBtn" onclick="checkAnswer()">Check Answer</button>
     <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800;">Next Question ➡</button>
   </div>
+
+  <div class="top-controls">
+    <button class="header-btn" onclick="window.print()">🖨️ プリント (PDF)</button>
+    <button class="header-btn" onclick="initGame()">🔄 最初から</button>
+  </div>
 </div>
 
 <div id="printable-sheet">
@@ -178,7 +179,6 @@
 </div>
 
 <script>
-  // 紛らわしい選択肢（much/a lot ofの共存）を完全に排除
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
     { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
@@ -259,7 +259,8 @@
 
   function checkAnswer() {
     if(!selectedWord) return;
-    const isCorrect = (selectedWord === quizData[currentIndex].answer);
+    const q = quizData[currentIndex];
+    const isCorrect = (selectedWord === q.answer);
     const msg = document.getElementById('resultMsg');
     
     if(isCorrect) {
