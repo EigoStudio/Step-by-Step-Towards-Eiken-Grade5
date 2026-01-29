@@ -28,12 +28,12 @@
     align-items: center;
     padding: 10px; 
     margin: 0;
-    min-height: 100vh;
   }
 
   h2 { font-size: 1.5rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
   .sub-title { font-size: 0.8rem; color: var(--accent-green); margin-bottom: 10px; font-weight: bold; }
 
+  /* イラストエリア */
   .illustration-container {
     background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; 
@@ -49,16 +49,17 @@
   .container {
     background: var(--card-bg); max-width: 800px; width: 100%; padding: 20px;
     border-radius: 25px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
-    border: 4px solid #fff; margin-bottom: 20px;
+    border: 4px solid #fff; margin-bottom: 10px;
   }
 
+  /* 問題文：PC版は従来通り */
   .question-box {
     font-size: 1.7rem; margin-bottom: 15px; 
-    min-height: 80px; height: auto; /* 高さを自動に */
+    min-height: 80px; height: auto;
     display: flex; align-items: center; justify-content: center;
     background-color: #fff8e1; border-radius: 15px; padding: 15px; border: 3px solid #ffe0b2;
     font-weight: bold; line-height: 1.5;
-    word-break: break-word;
+    word-break: break-word; overflow-wrap: break-word;
   }
 
   .dialog-wrapper { text-align: left; width: 100%; }
@@ -96,20 +97,29 @@
     box-shadow: 0 3px 0 rgba(0,0,0,0.2);
   }
 
-  /* --- スマホ版：崩れを徹底防止 --- */
+  /* --- スマホ版：崩れを徹底防止するための縛り解放 --- */
   @media (max-width: 600px) {
     body { padding: 5px; }
     .illustration-large { display: none; width: 100%; max-height: 35vh; }
     .illustration-large.active-mobile { display: block; }
     
-    /* 文字サイズを落として2行に収まりやすく */
-    .question-box { font-size: 1.1rem; padding: 12px 10px; line-height: 1.4; min-height: auto; }
+    /* 縛りを解放：flexを捨てて標準のブロック表示に */
+    .question-box { 
+      display: block; 
+      text-align: center;
+      font-size: 1.1rem; 
+      padding: 15px 8px; 
+      line-height: 1.6; 
+      min-height: auto; 
+      height: auto;
+      overflow-wrap: break-word; /* 単語の途切を防ぐ */
+    }
     .dialog-line { font-size: 1rem; padding: 8px; }
     .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 42%; }
     .action-btn { width: 90%; font-size: 1.3rem; }
   }
 
-  /* 印刷 */
+  /* 印刷用 */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
