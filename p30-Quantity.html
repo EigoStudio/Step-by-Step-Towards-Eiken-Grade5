@@ -51,7 +51,6 @@
     display: flex; flex-direction: column;
   }
 
-  /* 管理ボタン：PCは右上 */
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
     color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
@@ -94,30 +93,15 @@
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
-  /* --- スマホ版：配置調整 --- */
   @media (max-width: 600px) {
     .illustration-large { display: none; width: 100%; max-height: 25vh; }
     .illustration-large.active-mobile { display: block; }
-    
     .container { padding: 10px; margin-bottom: 15px; }
-    
-    /* プリント/最初からボタンを「一番下」へ */
-    .top-controls { 
-      position: static; 
-      margin-top: 20px; 
-      justify-content: center;
-      width: 100%;
-    }
+    .top-controls { position: static; margin-top: 20px; justify-content: center; width: 100%; }
     .header-btn { padding: 10px 15px; font-size: 0.9rem; }
-
-    .question-box { 
-      font-size: 1.1rem; min-height: 60px; padding: 10px; 
-      line-height: 1.4; display: block; white-space: normal; 
-    }
+    .question-box { font-size: 1.1rem; min-height: 60px; padding: 10px; line-height: 1.4; display: block; white-space: normal; }
     .choices-grid { flex-wrap: wrap; gap: 5px; }
     .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 45%; }
-    
-    /* Check Answerは選択肢のすぐ下 */
     .controls { margin-top: 10px; }
     .action-btn { width: 90%; padding: 12px 0; }
   }
@@ -182,6 +166,7 @@
 </div>
 
 <script>
+  // 【最重要】Q8以外からは "want more" を完全に削除しました
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
     { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
@@ -200,7 +185,7 @@
   let currentIndex = 0;
   let selectedWord = "";
   let selectedBtn = null;
-  let resetTimer = null; // ゴースト退治用タイマー管理
+  let resetTimer = null;
 
   function initGame() {
     currentIndex = 0;
@@ -213,6 +198,9 @@
     const q = quizData[currentIndex];
     const colorCode = "#2e7d32"; 
     
+    // 表示前に一度中身を完全にクリア（ゴースト対策）
+    qBox.innerHTML = "";
+
     if (q.isDialog) {
         let html = '<div class="dialog-wrapper">';
         q.q.forEach((line, i) => {
@@ -229,7 +217,7 @@
   }
 
   function loadQuestion() {
-    // 【重要】ゴースト退治：前の問題のリセットタイマーがあれば停止する
+    // 次の問題に進むときにタイマーを解除
     if (resetTimer) {
         clearTimeout(resetTimer);
         resetTimer = null;
@@ -285,11 +273,13 @@
         selectedBtn.classList.remove('selected');
         msg.textContent = "Try again!";
         msg.className = "result-msg wrong";
-        selectedWord = "";
         
-        // カッコ内をリセットするタイマーをセット（変数に保存）
+        // 不正解の時に文字を消すタイマー
+        const currentIdxAtFailure = currentIndex; // 問題が変わっていないかチェック用
         resetTimer = setTimeout(() => { 
-            if(selectedWord === "") renderQuestionWithWord(); 
+            if(currentIndex === currentIdxAtFailure) {
+                renderQuestionWithWord(); 
+            }
             resetTimer = null;
         }, 1200);
     }
