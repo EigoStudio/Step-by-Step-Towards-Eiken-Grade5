@@ -48,9 +48,10 @@
     background: var(--card-bg); max-width: 900px; width: 100%; padding: 15px;
     border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
     position: relative; border: 4px solid #fff; margin-bottom: 10px;
+    display: flex; flex-direction: column;
   }
 
-  /* 管理ボタン（PC版は右上） */
+  /* 管理ボタン：PCは右上 */
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
     color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
@@ -78,8 +79,8 @@
     padding: 12px 5px; border-radius: 12px; font-size: 1.3rem; cursor: pointer;
     font-weight: bold; flex: 1; box-shadow: 0 3px 0 var(--highlight-bg);
   }
-  .choice-btn.selected { background-color: var(--accent-brown); color: white; }
-  .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; }
+  .choice-btn.selected { background-color: var(--accent-brown); color: white; border-color: var(--accent-brown); }
+  .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
   .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
 
   .controls { margin-top: 10px; }
@@ -93,32 +94,34 @@
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
-  /* --- スマホ版：配置の入れ替え --- */
+  /* --- スマホ版：配置調整 --- */
   @media (max-width: 600px) {
     .illustration-large { display: none; width: 100%; max-height: 25vh; }
     .illustration-large.active-mobile { display: block; }
     
     .container { padding: 10px; margin-bottom: 15px; }
     
-    /* 管理ボタンを「一番下」へ移動 */
+    /* プリント/最初からボタンを「一番下」へ */
     .top-controls { 
-      position: static; /* 絶対配置を解除 */
+      position: static; 
       margin-top: 20px; 
       justify-content: center;
       width: 100%;
     }
-    .header-btn { padding: 10px 20px; font-size: 0.9rem; }
+    .header-btn { padding: 10px 15px; font-size: 0.9rem; }
 
-    .question-box { font-size: 1.1rem; min-height: 50px; padding: 10px; line-height: 1.4; display: block; }
+    .question-box { 
+      font-size: 1.1rem; min-height: 60px; padding: 10px; 
+      line-height: 1.4; display: block; white-space: normal; 
+    }
     .choices-grid { flex-wrap: wrap; gap: 5px; }
     .choice-btn { font-size: 1rem; padding: 10px 5px; flex: 1 1 45%; }
     
-    /* 回答ボタンは選択肢のすぐ下 */
+    /* Check Answerは選択肢のすぐ下 */
     .controls { margin-top: 10px; }
     .action-btn { width: 90%; padding: 12px 0; }
   }
 
-  /* --- 印刷用 --- */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -187,7 +190,7 @@
     { q: "5. There are (　　) 20 books on the shelf.", options: ["only", "some", "a few", "about"], answer: "about" },
     { isDialog: true, q: ["A: How many books do you have?", "B: (　　) one!"], options: ["About", "Many", "Only", "Some"], answer: "Only" },
     { q: "7. I see (　　) ten children. They are playing.", options: ["many", "some", "about", "a few"], answer: "about" },
-    { q: "8. I have (　　) water in my glass.", options: ["a little", "a lot of", "a few", "many"], answer: "a little" },
+    { q: "8. I have (　　) water in my glass. I want more, please.", options: ["a little", "a lot of", "a few", "many"], answer: "a little" },
     { q: "9. I have (　　) hats.", options: ["a little", "a few", "some", "about"], answer: "a few" },
     { q: "10. She is rich! She has so (　　) money.", options: ["many", "much", "a few", "about"], answer: "much" },
     { q: "11. He drinks (　　) water.", options: ["many", "a little", "a lot of", "a few"], answer: "a lot of" },
@@ -197,6 +200,7 @@
   let currentIndex = 0;
   let selectedWord = "";
   let selectedBtn = null;
+  let resetTimer = null; // ゴースト退治用タイマー管理
 
   function initGame() {
     currentIndex = 0;
@@ -225,6 +229,12 @@
   }
 
   function loadQuestion() {
+    // 【重要】ゴースト退治：前の問題のリセットタイマーがあれば停止する
+    if (resetTimer) {
+        clearTimeout(resetTimer);
+        resetTimer = null;
+    }
+
     selectedWord = "";
     selectedBtn = null;
     document.getElementById('resultMsg').textContent = "";
@@ -276,7 +286,12 @@
         msg.textContent = "Try again!";
         msg.className = "result-msg wrong";
         selectedWord = "";
-        setTimeout(() => { if(selectedWord === "") renderQuestionWithWord(); }, 1200);
+        
+        // カッコ内をリセットするタイマーをセット（変数に保存）
+        resetTimer = setTimeout(() => { 
+            if(selectedWord === "") renderQuestionWithWord(); 
+            resetTimer = null;
+        }, 1200);
     }
   }
 
