@@ -33,40 +33,32 @@
   h2 { font-size: 1.8rem; margin: 5px 0; border-bottom: 3px dashed var(--accent-brown); }
   .sub-title { font-size: 0.9rem; color: var(--accent-green); margin-bottom: 5px; font-weight: bold; }
 
-  /* イラストエリア */
   .illustration-container {
     background-color: white; padding: 10px; border-radius: 15px; margin-bottom: 10px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; 
-    width: 98vw; max-width: 1100px;
-    border: 3px solid var(--highlight-bg);
+    width: 98vw; max-width: 1100px; border: 3px solid var(--highlight-bg);
   }
   .img-pair { display: flex; justify-content: center; gap: 10px; }
   .illustration-large {
-    width: 49%; height: auto; border-radius: 10px;
-    border: 2px solid var(--accent-brown);
-    max-height: 55vh;
-    object-fit: contain;
+    width: 49%; height: auto; border-radius: 10px; border: 2px solid var(--accent-brown);
+    max-height: 55vh; object-fit: contain;
   }
 
   .container {
     background: var(--card-bg); max-width: 900px; width: 100%; padding: 15px;
     border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
-    position: relative; border: 4px solid #fff;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 420px; /* PC版の高さ確保 */
+    position: relative; border: 4px solid #fff; margin-bottom: 20px;
+    display: flex; flex-direction: column;
   }
 
   .top-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 10px; }
   .header-btn {
-    color: white; border: none; padding: 6px 15px;
-    border-radius: 10px; cursor: pointer; font-weight: bold; background-color: var(--accent-brown);
-    font-size: 0.8rem; box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+    color: white; border: none; padding: 6px 15px; border-radius: 10px; cursor: pointer;
+    font-weight: bold; background-color: var(--accent-brown); font-size: 0.8rem;
   }
 
   .question-box {
-    font-size: 1.8rem; margin-bottom: 15px; min-height: 60px; 
+    font-size: 1.8rem; margin-bottom: 10px; min-height: 60px; 
     display: flex; align-items: center; justify-content: center;
     background-color: #fff8e1; border-radius: 15px; padding: 10px 20px; border: 3px solid #ffe0b2;
     font-weight: bold; line-height: 1.3;
@@ -78,67 +70,40 @@
 
   .choices-grid { 
     display: flex; flex-direction: row; flex-wrap: nowrap;
-    justify-content: space-between; gap: 8px; margin-bottom: 15px; width: 100%;
+    justify-content: space-between; gap: 8px; margin-bottom: 10px; width: 100%;
   }
   .choice-btn {
     background-color: white; border: 2px solid var(--accent-green); color: var(--text-color);
     padding: 12px 5px; border-radius: 12px; font-size: 1.3rem; cursor: pointer;
     font-weight: bold; flex: 1; box-shadow: 0 3px 0 var(--highlight-bg);
-    white-space: nowrap;
   }
   .choice-btn.selected { background-color: var(--accent-brown); color: white; border-color: var(--accent-brown); }
   .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; }
-  .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; }
+  .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
 
-  .controls { margin-top: auto; padding-top: 15px; }
+  .controls { margin-top: 5px; padding-top: 5px; }
   .action-btn {
     padding: 10px 50px; font-size: 1.4rem; background-color: var(--accent-green);
     color: white; border: none; border-radius: 30px; cursor: pointer;
     box-shadow: 0 4px 0 #33691e; font-weight: bold;
   }
 
-  .result-msg { margin-bottom: 10px; font-weight: bold; font-size: 1.5rem; min-height: 35px; }
+  .result-msg { margin-bottom: 5px; font-weight: bold; font-size: 1.4rem; min-height: 30px; }
   .correct { color: var(--accent-green); } .wrong { color: #c62828; }
   .progress-container { width: 100%; background-color: #efebe9; border-radius: 10px; margin-bottom: 10px; height: 10px; overflow: hidden; }
   .progress-bar { height: 100%; background-color: var(--accent-green); width: 0%; transition: width 0.3s; }
 
-  /* --- スマホ版専用の設定 --- */
   @media (max-width: 600px) {
     .illustration-large { display: none; width: 100%; max-height: 30vh; }
     .illustration-large.active-mobile { display: block; }
-    
-    .question-box { 
-      font-size: 1.15rem; 
-      min-height: 70px; /* 複数行になっても余裕を持たせる */
-      padding: 12px 10px; 
-      margin-bottom: 10px;
-      white-space: normal; /* 折り返しを完全に許可 */
-      line-height: 1.4;
-      display: block; /* 中央揃えを維持しつつ改行を優先 */
-      text-align: center;
-    }
-    .dialog-line { padding: 8px; font-size: 1.1rem; line-height: 1.4; }
-    
-    .choices-grid { 
-      flex-wrap: wrap; 
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    .choice-btn { 
-      font-size: 1rem; 
-      padding: 12px 5px; 
-      flex: 1 1 40%;
-      white-space: normal;
-    }
-    
-    /* ボタンを一番下に固定 */
-    .container { min-height: 450px; padding-bottom: 20px; }
+    .question-box { font-size: 1.15rem; min-height: 70px; padding: 12px 10px; margin-bottom: 10px; white-space: normal; line-height: 1.4; display: block; text-align: center; }
+    .choices-grid { flex-wrap: wrap; justify-content: center; margin-bottom: 15px; }
+    .choice-btn { font-size: 1rem; padding: 12px 5px; flex: 1 1 40%; white-space: normal; }
+    .container { min-height: 420px; padding-bottom: 20px; }
     .controls { margin-top: auto; }
     .action-btn { padding: 12px 40px; font-size: 1.3rem; width: 90%; }
-    .result-msg { font-size: 1.1rem; margin-bottom: 5px; }
   }
 
-  /* --- 印刷用 A4設定 --- */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -199,23 +164,25 @@
 </div>
 
 <script>
+  // 文言を元のシンプルな状態に修正しました
   const quizData = [
     { q: "1. You have (　　) books.", options: ["a little", "a few", "a lot of", "only"], answer: "a lot of" },
-    { q: "2. Look! There are so (　　) hats!", options: ["much", "many", "a little", "about"], answer: "many" },
+    { q: "2. Look! There are so (　　) hats!", options: ["some", "many", "a little", "about"], answer: "many" },
     { q: "3. Don't put too (　　) sugar in your tea!", options: ["many", "much", "a few", "about"], answer: "much" },
-    { q: "4. We are having so (　　) fun today!", options: ["many", "much", "a few", "about"], answer: "much" },
-    { q: "5. There are (　　) 20 books on the shelf.", options: ["only", "some", "a lot of", "about"], answer: "about" },
-    { isDialog: true, q: ["A: How many books do you have?", "B: (　　) one!"], options: ["About", "Much", "Only", "Some"], answer: "Only" },
-    { q: "7. I see (　　) ten children. They are playing.", options: ["many", "much", "about", "a few"], answer: "about" },
+    { q: "4. We are having so (　　) fun today!", options: ["some", "much", "a few", "about"], answer: "much" },
+    { q: "5. There are (　　) 20 books on the shelf.", options: ["only", "some", "a few", "about"], answer: "about" },
+    { isDialog: true, q: ["A: How many books do you have?", "B: (　　) one!"], options: ["About", "Many", "Only", "Some"], answer: "Only" },
+    { q: "7. I see (　　) ten children. They are playing.", options: ["many", "some", "about", "a few"], answer: "about" },
     { q: "8. I have (　　) water in my glass. I want more, please.", options: ["a little", "a lot of", "a few", "many"], answer: "a little" },
-    { q: "9. I have (　　) hats.", options: ["a little", "a few", "much", "about"], answer: "a few" },
+    { q: "9. I have (　　) hats.", options: ["a little", "many", "some", "about"], answer: "many" },
     { q: "10. She is rich! She has so (　　) money.", options: ["many", "much", "a few", "about"], answer: "much" },
-    { q: "11. He drinks (　　) water.", options: ["many", "much", "a lot of", "a few"], answer: "a lot of" },
+    { q: "11. He drinks (　　) water.", options: ["many", "a little", "a lot of", "a few"], answer: "a lot of" },
     { q: "12. He is carrying (　　) books.", options: ["much", "a little", "some", "only"], answer: "some" }
   ];
 
   let currentIndex = 0;
   let selectedWord = "";
+  let selectedBtn = null;
 
   function initGame() {
     currentIndex = 0;
@@ -224,9 +191,9 @@
   }
 
   function renderQuestionWithWord(word = "　　") {
-    const q = quizData[currentIndex];
     const qBox = document.getElementById('questionText');
-    const colorCode = "#2e7d32"; // カッコ内の単語の色（緑）
+    const q = quizData[currentIndex];
+    const colorCode = "#2e7d32"; 
     
     if (q.isDialog) {
         let html = '<div class="dialog-wrapper">';
@@ -245,6 +212,7 @@
 
   function loadQuestion() {
     selectedWord = "";
+    selectedBtn = null;
     document.getElementById('resultMsg').textContent = "";
     document.getElementById('checkBtn').style.display = "inline-block";
     document.getElementById('nextBtn').style.display = "none";
@@ -252,13 +220,8 @@
 
     const imgA = document.getElementById('img-a');
     const imgB = document.getElementById('img-b');
-    if (currentIndex < 9) {
-        imgA.classList.add('active-mobile');
-        imgB.classList.remove('active-mobile');
-    } else {
-        imgA.classList.remove('active-mobile');
-        imgB.classList.add('active-mobile');
-    }
+    if (currentIndex < 9) { imgA.classList.add('active-mobile'); imgB.classList.remove('active-mobile'); }
+    else { imgA.classList.remove('active-mobile'); imgB.classList.add('active-mobile'); }
 
     renderQuestionWithWord();
 
@@ -273,6 +236,7 @@
             document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             selectedWord = opt;
+            selectedBtn = btn;
             renderQuestionWithWord(opt);
         };
         grid.appendChild(btn);
@@ -283,25 +247,30 @@
     if(!selectedWord) return;
     const q = quizData[currentIndex];
     const isCorrect = (selectedWord === q.answer);
-    
-    document.querySelectorAll('.choice-btn').forEach(btn => {
-        btn.disabled = true;
-        if(btn.textContent === q.answer) btn.classList.add('correct-choice');
-        else if(btn.classList.contains('selected') && !isCorrect) btn.classList.add('wrong-choice');
-    });
-
     const msg = document.getElementById('resultMsg');
-    msg.textContent = isCorrect ? "✨ Correct! ✨" : "Check the correct word!";
-    msg.className = "result-msg " + (isCorrect ? "correct" : "wrong");
-    document.getElementById('checkBtn').style.display = "none";
-    document.getElementById('nextBtn').style.display = "inline-block";
+    
+    if(isCorrect) {
+        selectedBtn.classList.add('correct-choice');
+        document.querySelectorAll('.choice-btn').forEach(btn => btn.disabled = true);
+        msg.textContent = "✨ Correct! ✨";
+        msg.className = "result-msg correct";
+        document.getElementById('checkBtn').style.display = "none";
+        document.getElementById('nextBtn').style.display = "inline-block";
+    } else {
+        selectedBtn.classList.add('wrong-choice');
+        selectedBtn.classList.remove('selected');
+        msg.textContent = "Try again!";
+        msg.className = "result-msg wrong";
+        selectedWord = "";
+        setTimeout(() => { renderQuestionWithWord(); }, 1200);
+    }
   }
 
   function nextQuestion() {
     currentIndex++;
     if(currentIndex < quizData.length) loadQuestion();
     else {
-        document.getElementById('questionText').innerHTML = "🎉 Excellent Work!";
+        document.getElementById('questionText').innerHTML = "🎉 All Clear!";
         document.getElementById('choicesGrid').innerHTML = "";
         document.getElementById('nextBtn').style.display = "none";
         document.getElementById('progressBar').style.width = "100%";
@@ -313,7 +282,6 @@
     const answers = document.getElementById('sheet-answers');
     content.innerHTML = ""; answers.innerHTML = "";
     const wideGap = "( 　　　　　　　　 )";
-
     quizData.forEach((item, index) => {
       const qBlock = document.createElement('div');
       qBlock.className = 'sheet-question';
@@ -321,13 +289,11 @@
       qTextForPrint = qTextForPrint.replace('(　　)', wideGap);
       qBlock.innerHTML = `<div class="q-text">${qTextForPrint}</div><div class="q-options-line">[ ${item.options.join('  /  ')} ]</div>`;
       content.appendChild(qBlock);
-      
       const aBlock = document.createElement('div');
       aBlock.innerHTML = `<b>Q${index+1}:</b> ${item.answer}`;
       answers.appendChild(aBlock);
     });
   }
-
   initGame();
 </script>
 </body>
