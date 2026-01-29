@@ -53,7 +53,7 @@
     border-radius: 20px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); text-align: center;
     position: relative; border: 4px solid #fff;
     margin-bottom: 20px;
-    display: flex; /* ボタン移動用 */
+    display: flex;
     flex-direction: column;
   }
 
@@ -89,7 +89,7 @@
   .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; }
   .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; }
 
-  .controls { order: 10; margin-top: auto; padding-top: 15px; } /* 下に配置するための設定 */
+  .controls { order: 10; margin-top: auto; padding-top: 15px; }
   .action-btn {
     padding: 10px 50px; font-size: 1.4rem; background-color: var(--accent-green);
     color: white; border: none; border-radius: 30px; cursor: pointer;
@@ -103,41 +103,39 @@
 
   /* --- スマホ版専用の設定 --- */
   @media (max-width: 600px) {
-    /* イラスト */
-    .illustration-large { display: none; width: 100%; max-height: 35vh; }
+    .illustration-large { display: none; width: 100%; max-height: 30vh; } /* 少しだけ高さを抑える */
     .illustration-large.active-mobile { display: block; }
     
-    /* 問題文：無理やり1行にせず、綺麗に改行を許可 */
     .question-box { 
-      font-size: 1.2rem; 
-      min-height: 60px; 
-      padding: 12px; 
+      font-size: 1.1rem; 
+      min-height: auto; 
+      padding: 12px 10px; 
       margin-bottom: 10px;
-      white-space: normal; /* 改行を許可して崩れを防止 */
-      word-break: break-word;
+      white-space: normal; 
+      line-height: 1.5;
     }
-    .dialog-line { padding: 8px; font-size: 1.1rem; }
+    .dialog-line { padding: 8px; font-size: 1.1rem; line-height: 1.4; }
     
-    /* 選択肢：少し隙間を空けてタップしやすく */
     .choices-grid { 
-      flex-wrap: wrap; /* スマホでは2列などで折り返しを許可 */
+      flex-wrap: wrap; 
       justify-content: center;
+      margin-bottom: 10px; /* 余白を詰める */
     }
     .choice-btn { 
       font-size: 1rem; 
-      padding: 12px 5px; 
-      flex: 1 1 40%; /* 2列ベースにする */
+      padding: 10px 5px; 
+      flex: 1 1 40%;
       white-space: normal;
     }
     
-    /* ボタンをコンテナの最下部へ */
-    .container { min-height: 400px; padding-bottom: 20px; }
-    .controls { margin-top: auto; }
-    .action-btn { padding: 12px 40px; font-size: 1.3rem; width: 90%; }
-    .result-msg { font-size: 1.2rem; }
+    /* ボタンの位置を上げる */
+    .container { min-height: auto; padding-bottom: 15px; }
+    .controls { margin-top: 5px; padding-top: 10px; } /* 余白を詰めた */
+    .action-btn { padding: 10px 40px; font-size: 1.2rem; width: 90%; }
+    .result-msg { font-size: 1.1rem; margin-bottom: 5px; min-height: 25px; }
   }
 
-  /* --- 印刷用 A4設定 (変更なし) --- */
+  /* --- 印刷用 A4設定 --- */
   #printable-sheet { display: none; }
   @media print {
     @page { size: A4; margin: 10mm 15mm; }
@@ -225,7 +223,7 @@
   function renderQuestionWithWord(word = "　　") {
     const q = quizData[currentIndex];
     const qBox = document.getElementById('questionText');
-    const colorCode = "#d84315";
+    const colorCode = "#2e7d32";
     
     if (q.isDialog) {
         let html = '<div class="dialog-wrapper">';
