@@ -350,7 +350,7 @@
 
   /* --- 印刷時の設定 (PDF) --- */
   @media print {
-    @page { size: A4; margin: 15mm; }
+    @page { size: A4; margin: 10mm; }
     .header-area, .container, .bottom-controls { display: none !important; }
     
     body { 
@@ -364,10 +364,10 @@
     #printable-sheet { display: block; width: 100%; }
     
     .sheet-header { text-align: center; border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 5px; }
-    .sheet-title { font-size: 20pt; font-weight: bold; margin: 0; }
+    .sheet-title { font-size: 15pt; font-weight: bold; margin: 0; }
     
     .sheet-section-title { 
-      font-size: 14pt; 
+      font-size: 13pt; 
       font-weight: bold; 
       margin-top: 30px; 
       margin-bottom: 15px; 
@@ -377,8 +377,8 @@
     }
 
     .sheet-question { margin-bottom: 35px; page-break-inside: avoid; }
-    .q-text { font-size: 14pt; margin-bottom: 10px; line-height: 1.8; }
-    .q-options { font-size: 13pt; margin-left: 15px; font-weight: bold; }
+    .q-text { font-size: 13pt; margin-bottom: 10px; line-height: 1.5; }
+    .q-options { font-size: 12pt; margin-left: 15px; font-weight: bold; }
     .q-line { border-bottom: 1px solid #333; height: 40px; width: 100%; margin-bottom: 8px; }
     .word-hint { font-size: 11pt; color: #444; text-align: right; }
     
