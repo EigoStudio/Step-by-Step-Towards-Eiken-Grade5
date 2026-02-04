@@ -31,6 +31,7 @@
     min-height: 100vh;
   }
 
+  /* --- ヘッダー（ブラウザ用） --- */
   .header-area {
     display: flex;
     flex-direction: row;
@@ -68,6 +69,7 @@
     margin: 0;
   }
 
+  /* --- メインコンテナ --- */
   .container {
     background: var(--card-bg);
     width: 100%;
@@ -79,6 +81,7 @@
     border: 4px solid #fff;
     margin-bottom: 20px;
     position: relative;
+    box-sizing: border-box;
   }
 
   .question-box {
@@ -153,13 +156,44 @@
     cursor: pointer; font-weight: bold;
   }
 
+  /* --- スマホレスポンシブ --- */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .header-area { flex-direction: column; gap: 15px; margin-bottom: 15px; }
+    .title-wrapper h2 { font-size: 1.4rem; }
+    .question-box { font-size: 1.3rem; padding: 15px; }
+    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice-btn { min-width: 0; font-size: 1.1rem; }
+    .audio-btn { position: relative; bottom: 0; right: 0; margin: 10px auto 0; width: 80%; }
+    .bottom-controls { flex-direction: column; width: 100%; }
+  }
+
+  /* --- 印刷用設定（A4一枚に収める） --- */
   #printable-sheet { display: none; }
 
   @media print {
+    @page { size: A4; margin: 10mm; }
     body * { visibility: hidden; }
     #printable-sheet, #printable-sheet * { visibility: visible; color: #000 !important; }
-    #printable-sheet { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
-    .sheet-question { margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+    #printable-sheet { 
+      display: block; 
+      position: absolute; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      padding: 0;
+      margin: 0;
+    }
+    h1.print-title { font-size: 20pt; text-align: center; margin-bottom: 10px; }
+    .print-name { text-align: right; font-size: 12pt; margin-bottom: 10px; }
+    .sheet-question { 
+      margin-bottom: 18px; 
+      border-bottom: 1px dashed #666; 
+      padding-bottom: 8px; 
+      line-height: 1.4;
+    }
+    .sheet-question b { font-size: 14pt; }
+    .sheet-options { font-size: 12pt; margin-top: 5px; }
     .print-no-show { display: none !important; }
   }
 </style>
@@ -180,7 +214,7 @@
   <div id="questionNum" style="text-align: left; font-weight: bold; color: var(--accent-brown); margin-bottom: 10px;">Question 1/9</div>
   <div class="question-box" id="questionText">Loading...</div>
   <div class="choices-grid" id="choicesGrid"></div>
-  <div id="resultMsg" style="font-weight: bold; font-size: 1.5rem; min-height: 40px;"></div>
+  <div id="resultMsg" style="font-weight: bold; font-size: 1.2rem; min-height: 30px; margin-bottom: 10px;"></div>
   
   <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
   <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 5px 0 #e65100;">次へ進む ➔</button>
@@ -194,10 +228,10 @@
 </div>
 
 <div id="printable-sheet">
-  <h1 style="text-align:center;">p7 Places/Transportation Part2</h1>
-  <div style="text-align:right;">Name: ____________________</div>
+  <h1 class="print-title">p7 Places/Transportation Part2</h1>
+  <div class="print-name">Name: ____________________</div>
   <div id="sheetContent"></div>
-  <div class="print-no-show" style="margin-top: 30px; padding: 15px; background: #eee;">
+  <div class="print-no-show" style="margin-top: 20px; padding: 10px; background: #eee;">
     <h3>解答 (Answer Key) ※印刷されません</h3>
     <div id="answerContent"></div>
   </div>
@@ -270,7 +304,6 @@
       document.getElementById('nextBtn').style.display = "inline-block";
       document.getElementById('speakBtn').style.display = "block";
 
-      // カッコを外した自然な文に更新
       const fullSentence = quizData[currentIdx].q.replace("(      )", selectedOption);
       document.getElementById('questionText').textContent = fullSentence;
 
@@ -285,7 +318,7 @@
     const text = document.getElementById('questionText').textContent;
     const uttr = new SpeechSynthesisUtterance(text);
     uttr.lang = "en-US";
-    uttr.rate = 0.8; // 少しゆっくりめに
+    uttr.rate = 0.8;
     speechSynthesis.speak(uttr);
   }
 
@@ -301,7 +334,7 @@
     const sheet = document.getElementById('sheetContent');
     const ans = document.getElementById('answerContent');
     quizData.forEach((d, i) => {
-      sheet.innerHTML += `<div class="sheet-question" style="font-size: 16pt;"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")}<br><small>[ ${d.options.join(" / ")} ]</small></div>`;
+      sheet.innerHTML += `<div class="sheet-question"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")}<br><div class="sheet-options">[ ${d.options.join(" / ")} ]</div></div>`;
       ans.innerHTML += `Q${i+1}: ${d.a}　`;
     });
   }
