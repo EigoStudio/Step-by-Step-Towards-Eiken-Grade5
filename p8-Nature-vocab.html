@@ -38,7 +38,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     margin-bottom: 10px;
     gap: 15px;
   }
@@ -48,8 +48,8 @@
     padding: 5px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    max-width: 200px; /* スマホで見やすいサイズに調整 */
-    width: 40%;
+    max-width: 180px;
+    width: 35%;
   }
   
   .illustration-placeholder {
@@ -72,7 +72,7 @@
   .container {
     background: var(--card-bg);
     width: 100%;
-    max-width: 600px;
+    max-width: 900px; /* PC版で幅を広く活用 */
     padding: 15px;
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -83,7 +83,7 @@
   }
 
   .question-box {
-    font-size: 1.3rem; /* 少し小さくして1画面に収める */
+    font-size: 1.3rem; 
     font-weight: bold;
     margin-bottom: 15px;
     background-color: #f1f8e9;
@@ -99,22 +99,23 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 15px;
   }
 
+  /* モバイル優先の設定（2列） */
   .choice-btn {
     background-color: white;
     border: 2px solid var(--accent-blue);
     color: var(--text-color);
-    padding: 8px 15px;
+    padding: 8px 10px;
     border-radius: 12px;
     font-size: 1.1rem;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s;
-    flex: 1 1 40%; /* 2列並びを基本に */
-    max-width: 180px;
+    flex: 1 1 45%; /* スマホでは2列 */
+    max-width: 200px;
   }
 
   .choice-btn:hover { background-color: #e1f5fe; }
@@ -123,8 +124,8 @@
   .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
 
   .audio-btn {
-    display: block; /* 絶対配置をやめてフロー内に */
-    margin: 10px auto;
+    display: block;
+    margin: 5px auto;
     background-color: #673ab7;
     color: white;
     border: none;
@@ -132,13 +133,14 @@
     padding: 8px 20px;
     font-size: 0.9rem;
     cursor: pointer;
-    visibility: hidden; /* 正解するまで隠す */
+    visibility: hidden;
     box-shadow: 0 4px 0 #4527a0;
   }
 
   .action-btn {
-    width: 80%;
-    padding: 10px;
+    width: 90%;
+    max-width: 400px;
+    padding: 12px;
     font-size: 1.2rem;
     background-color: var(--accent-green);
     color: white;
@@ -155,14 +157,23 @@
     cursor: pointer; font-weight: bold; font-size: 0.9rem;
   }
 
-  /* PC向け：画面が広い時の調整 */
-  @media (min-width: 600px) {
-    .header-area { margin-bottom: 20px; }
+  /* PC向け：画面が広い時（横幅700px以上）の調整 */
+  @media (min-width: 700px) {
+    .header-area { margin-bottom: 20px; gap: 30px; }
     .title-wrapper h2 { font-size: 1.8rem; }
     .question-box { font-size: 1.8rem; padding: 25px; }
-    .choice-btn { font-size: 1.4rem; padding: 12px 20px; }
+    
+    /* PC版は1列に並べる */
+    .choice-btn { 
+      flex: 1 1 80%; 
+      max-width: 600px; 
+      font-size: 1.4rem; 
+      padding: 12px 20px;
+    }
+    
     .illustration-container { max-width: 300px; }
     .illustration-placeholder { max-height: 250px; }
+    #questionNum { font-size: 1.2rem; }
   }
 
   #printable-sheet { display: none; }
@@ -183,7 +194,7 @@
   </div>
   <div class="title-wrapper">
     <h2 id="pageTitle">p8 Nature Quiz</h2>
-    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold; font-size: 0.9rem;">Question 1/17</div>
+    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold;">Question 1/17</div>
   </div>
 </div>
 
@@ -214,7 +225,7 @@
   const quizData = [
     { q: "Mr. Tanaka is fishing at the (      ).", a: "river", options: ["river", "sky", "leaf", "sun"], img: "images/river.jpg" },
     { q: "The children are swimming in the (      ).", a: "lake", options: ["lake", "star", "flower", "moon"], img: "images/lake.jpg" },
-    { q: "John is skiing in the (      ).", a: "mountains", options: ["mountains", "lakes", "flowers", "stars"], img: "images/mountains.jpg" },
+    { q: "John is skiing in the (      ).", a: "mountains", options: ["mountains", "lakes", "roses", "stars"], img: "images/mountains.jpg" },
     { q: "Misa is on the (      ). She is bathing in the sun.", a: "beach", options: ["beach", "snow", "cloud", "ocean"], img: "images/beach.jpg" },
     { q: "The children are swimming in the (      ).", a: "sea", options: ["sea", "tree", "star", "leaf"], img: "images/sea.jpg" },
     { q: "The big ship is going across the (      ).", a: "ocean", options: ["ocean", "moon", "flower", "rain"], img: "images/ocean.jpg" },
@@ -223,12 +234,12 @@
     { q: "These (      ) smell nice!", a: "flowers", options: ["flowers", "snow", "moon", "mountain"], img: "images/flowers.jpg" },
     { q: "Look at the (      )! They are white!", a: "clouds", options: ["clouds", "stars", "oceans", "rivers"], img: "images/clouds.jpg" },
     { q: "Look at the (      )! It's colorful!", a: "rainbow", options: ["rainbow", "lake", "tree", "sun"], img: "images/rainbow.jpg" },
-    { q: "The children are playing in the (      ).", a: "snow", options: ["snow", "leaf", "sky", "beach"], img: "images/snow.jpg" },
+    { q: "The children are playing in the (      ).", a: "snow", options: ["snow", "leaf", "rose", "beach"], img: "images/snow.jpg" },
     { q: "The boy is walking in the (      ).", a: "rain", options: ["rain", "star", "tree", "mountain"], img: "images/rain.jpg" },
     { q: "Look at the yellow (      )!", a: "moon", options: ["moon", "sky", "river", "flower"], img: "images/moon-stars.jpg" },
     { q: "Look at the (      )! They are beautiful!", a: "stars", options: ["stars", "clouds", "moon", "rainbow"], img: "images/moon-stars.jpg" },
     { q: "The (      ) is shining brightly.", a: "sun", options: ["sun", "rain", "mountain", "moon"], img: "images/sun.jpg" },
-    { q: "The (      ) is blue.", a: "sky", options: ["sky", "snow", "flower", "tree"], img: "images/sky.jpg" }
+    { q: "The (      ) is blue.", a: "sky", options: ["sky", "snow", "rose", "tree"], img: "images/sky.jpg" }
   ];
 
   let currentIdx = 0;
