@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>p8 Nature - Vocabulary Quiz</title>
+<title>p8 Nature Quiz</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
@@ -15,236 +15,154 @@
     --card-bg: #ffffff;
     --accent-blue: #0277bd;
     --accent-green: #2e7d32;
-    --accent-brown: #5d4037;
     --main-font: "Zen Maru Gothic", sans-serif;
   }
 
   * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-  body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+  /* ポップアップ Excellent! */
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffca28; color: #5d4037;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
   }
+  #excellentPopup.show { right: 20px; }
 
   .header-area {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 900px;
-    margin-bottom: 10px;
-    gap: 15px;
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; max-width: 1000px; margin-bottom: 10px; gap: 20px;
   }
 
   .illustration-container {
-    background-color: white;
-    padding: 5px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    max-width: 180px;
-    width: 35%;
+    background-color: white; padding: 5px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 120px; transition: width 0.3s;
   }
-  
-  .illustration-placeholder {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    display: block;
-    max-height: 150px;
-    object-fit: contain;
-  }
+  .illustration-placeholder { width: 100%; height: auto; border-radius: 10px; object-fit: contain; display: block; }
 
-  .title-wrapper h2 {
-    color: var(--text-color);
-    border-bottom: 3px dashed var(--accent-blue);
-    padding-bottom: 2px;
-    font-size: 1.2rem;
-    margin: 0;
-  }
+  .title-wrapper h2 { color: var(--text-color); font-size: 1.2rem; margin: 0; border-bottom: 3px dashed var(--accent-blue); }
 
   .container {
-    background: var(--card-bg);
-    width: 100%;
-    max-width: 900px; /* PC版で幅を広く活用 */
-    padding: 15px;
-    border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    border: 3px solid #fff;
-    margin-bottom: 15px;
-    position: relative;
+    background: var(--card-bg); width: 100%; max-width: 1000px;
+    padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center; border: 3px solid #fff;
   }
 
   .question-box {
-    font-size: 1.3rem; 
-    font-weight: bold;
-    margin-bottom: 15px;
-    background-color: #f1f8e9;
-    border-radius: 12px;
-    padding: 15px;
-    border: 2px solid #c8e6c9;
-    color: var(--text-color);
-    min-height: 60px;
-    line-height: 1.4;
+    font-size: 1.4rem; font-weight: bold; margin-bottom: 15px;
+    background-color: #f1f8e9; border-radius: 12px; padding: 15px;
+    border: 2px solid #c8e6c9; line-height: 1.4;
   }
 
-  .choices-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
+  .speaker-icon { display: inline-block; cursor: pointer; font-size: 1.2rem; background: none; border: none; visibility: hidden; margin-left: 5px; }
 
-  /* モバイル優先の設定（2列） */
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+
   .choice-btn {
-    background-color: white;
-    border: 2px solid var(--accent-blue);
-    color: var(--text-color);
-    padding: 8px 10px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s;
-    flex: 1 1 45%; /* スマホでは2列 */
-    max-width: 200px;
+    background-color: white; border: 2px solid var(--accent-blue);
+    color: var(--text-color); padding: 8px 20px; border-radius: 12px;
+    font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: all 0.2s;
   }
-
-  .choice-btn:hover { background-color: #e1f5fe; }
   .choice-btn.selected { background-color: var(--accent-blue); color: white; }
   .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
   .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
 
-  .audio-btn {
-    display: block;
-    margin: 5px auto;
-    background-color: #673ab7;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 8px 20px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    visibility: hidden;
-    box-shadow: 0 4px 0 #4527a0;
-  }
-
+  .controls { display: flex; justify-content: center; gap: 15px; }
   .action-btn {
-    width: 90%;
-    max-width: 400px;
-    padding: 12px;
-    font-size: 1.2rem;
-    background-color: var(--accent-green);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    box-shadow: 0 4px 0 #1b5e20;
-    font-weight: bold;
+    padding: 10px 40px; font-size: 1.2rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 30px; cursor: pointer;
+    box-shadow: 0 4px 0 #1b5e20; font-weight: bold;
   }
 
-  .bottom-controls { display: flex; gap: 10px; margin-bottom: 20px; }
-  .header-btn {
-    color: white; border: none; padding: 10px 20px; border-radius: 20px;
-    cursor: pointer; font-weight: bold; font-size: 0.9rem;
-  }
+  .bottom-nav { display: flex; gap: 15px; margin-top: 15px; }
+  .nav-btn { color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
 
-  /* PC向け：画面が広い時（横幅700px以上）の調整 */
-  @media (min-width: 700px) {
-    .header-area { margin-bottom: 20px; gap: 30px; }
-    .title-wrapper h2 { font-size: 1.8rem; }
-    .question-box { font-size: 1.8rem; padding: 25px; }
-    
-    /* PC版は1列に並べる */
-    .choice-btn { 
-      flex: 1 1 80%; 
-      max-width: 600px; 
-      font-size: 1.4rem; 
-      padding: 12px 20px;
-    }
-    
-    .illustration-container { max-width: 300px; }
-    .illustration-placeholder { max-height: 250px; }
+  /* PC向け調整 */
+  @media (min-width: 600px) {
+    .header-area { margin-bottom: 15px; gap: 40px; }
+    .illustration-container { width: 300px; padding: 10px; } 
+    .title-wrapper h2 { font-size: 2rem; }
+    .question-box { font-size: 2rem; padding: 25px; }
+    .choice-btn { font-size: 1.4rem; padding: 12px 30px; }
     #questionNum { font-size: 1.2rem; }
   }
 
+  /* プリント設定 */
   #printable-sheet { display: none; }
-
   @media print {
     body * { visibility: hidden; }
     #printable-sheet, #printable-sheet * { visibility: visible; color: #000 !important; }
     #printable-sheet { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
-    .sheet-question { margin-bottom: 20px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+    .sheet-question { margin-bottom: 25px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; font-size: 18pt; }
+    .print-no-show { display: none !important; }
   }
 </style>
 </head>
 <body>
 
+<div id="excellentPopup">Excellent! ✨</div>
+
 <div class="header-area">
   <div class="illustration-container">
-    <img id="headerImage" src="images/river.jpg" class="illustration-placeholder" alt="QuestImg">
+    <img id="headerImage" src="images/river.jpg" class="illustration-placeholder" alt="NatureImg">
   </div>
   <div class="title-wrapper">
     <h2 id="pageTitle">p8 Nature Quiz</h2>
-    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold;">Question 1/17</div>
+    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold; margin-top: 5px;">Q 1/17</div>
   </div>
 </div>
 
 <div class="container">
-  <div class="question-box" id="questionText">Loading...</div>
+  <div class="question-box">
+    <span id="questionText">Loading...</span>
+    <button id="speakBtn" class="speaker-icon" onclick="speakCurrentSentence()">🔊</button>
+  </div>
   <div class="choices-grid" id="choicesGrid"></div>
-  <div id="resultMsg" style="font-weight: bold; font-size: 1.2rem; min-height: 30px; margin-bottom: 10px;"></div>
-  
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+  <div class="controls">
     <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
     <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">次へ進む ➔</button>
-    <button id="speakBtn" class="audio-btn" onclick="speakCurrentSentence()">🔊 読み上げ</button>
   </div>
 </div>
 
-<div class="bottom-controls">
-  <button class="header-btn" style="background-color: var(--accent-green);" onclick="restartQuiz()">最初から</button>
-  <button class="header-btn" style="background-color: var(--accent-brown);" onclick="window.print()">🖨️ プリント</button>
+<div class="bottom-nav">
+  <button class="nav-btn" style="background-color: var(--accent-green);" onclick="restartQuiz()">最初から</button>
+  <button class="nav-btn" style="background-color: #5d4037;" onclick="window.print()">🖨️ プリント</button>
 </div>
 
 <div id="printable-sheet">
-  <h1 style="text-align:center;">p8 Nature - Vocabulary Quiz</h1>
-  <div style="text-align:right;">Name: ____________________</div>
+  <h1 style="text-align:center; border-bottom: 3px solid #000;">p8 Nature - Vocabulary Quiz</h1>
+  <div style="text-align:right; margin-bottom: 30px;">Name: ____________________</div>
   <div id="sheetContent"></div>
+  <div class="print-no-show" style="margin-top: 40px; padding: 20px; background: #f0f0f0; border: 1px solid #ccc;">
+    <h3>解答 (Answer Key) ※この枠は印刷されません</h3>
+    <div id="answerContent"></div>
+  </div>
 </div>
 
 <script>
   const quizData = [
     { q: "Mr. Tanaka is fishing at the (      ).", a: "river", options: ["river", "sky", "leaf", "sun"], img: "images/river.jpg" },
     { q: "The children are swimming in the (      ).", a: "lake", options: ["lake", "star", "flower", "moon"], img: "images/lake.jpg" },
-    { q: "John is skiing in the (      ).", a: "mountains", options: ["mountains", "lakes", "roses", "stars"], img: "images/mountains.jpg" },
+    { q: "John is skiing in the (      )s.", a: "mountain", options: ["mountain", "beach", "rain", "sea"], img: "images/mountains.jpg" },
     { q: "Misa is on the (      ). She is bathing in the sun.", a: "beach", options: ["beach", "snow", "cloud", "ocean"], img: "images/beach.jpg" },
     { q: "The children are swimming in the (      ).", a: "sea", options: ["sea", "tree", "star", "leaf"], img: "images/sea.jpg" },
     { q: "The big ship is going across the (      ).", a: "ocean", options: ["ocean", "moon", "flower", "rain"], img: "images/ocean.jpg" },
     { q: "The Christmas (      ) is beautiful.", a: "tree", options: ["tree", "sea", "river", "sky"], img: "images/tree.jpg" },
     { q: "(      ) turn color in fall.", a: "Leaves", options: ["Leaves", "Lakes", "Clouds", "Suns"], img: "images/leaves.jpg" },
     { q: "These (      ) smell nice!", a: "flowers", options: ["flowers", "snow", "moon", "mountain"], img: "images/flowers.jpg" },
-    { q: "Look at the (      )! They are white!", a: "clouds", options: ["clouds", "stars", "oceans", "rivers"], img: "images/clouds.jpg" },
+    { q: "Look at the (      )s! They are white!", a: "cloud", options: ["cloud", "star", "ocean", "river"], img: "images/clouds.jpg" },
     { q: "Look at the (      )! It's colorful!", a: "rainbow", options: ["rainbow", "lake", "tree", "sun"], img: "images/rainbow.jpg" },
-    { q: "The children are playing in the (      ).", a: "snow", options: ["snow", "leaf", "rose", "beach"], img: "images/snow.jpg" },
+    { q: "The children are playing in the (      ).", a: "snow", options: ["snow", "leaf", "flower", "beach"], img: "images/snow.jpg" },
     { q: "The boy is walking in the (      ).", a: "rain", options: ["rain", "star", "tree", "mountain"], img: "images/rain.jpg" },
     { q: "Look at the yellow (      )!", a: "moon", options: ["moon", "sky", "river", "flower"], img: "images/moon-stars.jpg" },
-    { q: "Look at the (      )! They are beautiful!", a: "stars", options: ["stars", "clouds", "moon", "rainbow"], img: "images/moon-stars.jpg" },
+    { q: "Look at the (      )s! They are beautiful!", a: "star", options: ["star", "cloud", "moon", "rainbow"], img: "images/moon-stars.jpg" },
     { q: "The (      ) is shining brightly.", a: "sun", options: ["sun", "rain", "mountain", "moon"], img: "images/sun.jpg" },
-    { q: "The (      ) is blue.", a: "sky", options: ["sky", "snow", "rose", "tree"], img: "images/sky.jpg" }
+    { q: "The (      ) is blue.", a: "sky", options: ["sky", "snow", "flower", "tree"], img: "images/sky.jpg" }
   ];
 
   let currentIdx = 0;
   let selectedOption = null;
-  let shuffledQuizData = [];
+  let shuffledData = [];
 
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -256,20 +174,19 @@
 
   function restartQuiz() {
     currentIdx = 0;
-    shuffledQuizData = shuffle([...quizData]);
+    shuffledData = shuffle([...quizData]);
     loadQuestion();
   }
 
   function loadQuestion() {
-    const data = shuffledQuizData[currentIdx];
+    const data = shuffledData[currentIdx];
     document.getElementById('questionText').textContent = data.q;
     document.getElementById('headerImage').src = data.img;
-    document.getElementById('questionNum').textContent = `Q ${currentIdx + 1} / ${shuffledQuizData.length}`;
+    document.getElementById('questionNum').textContent = `Q ${currentIdx + 1} / ${shuffledData.length}`;
     
     const grid = document.getElementById('choicesGrid');
     grid.innerHTML = "";
     selectedOption = null;
-    document.getElementById('resultMsg').textContent = "";
     document.getElementById('checkBtn').style.display = "block";
     document.getElementById('nextBtn').style.display = "none";
     document.getElementById('speakBtn').style.visibility = "hidden";
@@ -292,23 +209,19 @@
 
   function checkAnswer() {
     if (!selectedOption) { alert("答えを選んでね！"); return; }
-    const correct = shuffledQuizData[currentIdx].a;
-    const msg = document.getElementById('resultMsg');
-    
+    const correct = shuffledData[currentIdx].a;
     if (selectedOption === correct) {
       document.querySelector('.choice-btn.selected').classList.add('correct-choice');
-      msg.textContent = "Good job! 正解！";
-      msg.style.color = "#2e7d32";
       document.getElementById('checkBtn').style.display = "none";
       document.getElementById('nextBtn').style.display = "block";
       document.getElementById('speakBtn').style.visibility = "visible";
-
-      const fullSentence = shuffledQuizData[currentIdx].q.replace("(      )", selectedOption);
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+      const fullSentence = shuffledData[currentIdx].q.replace("(      )", selectedOption);
       document.getElementById('questionText').textContent = fullSentence;
     } else {
       document.querySelector('.choice-btn.selected').classList.add('wrong-choice');
-      msg.textContent = "Try again!";
-      msg.style.color = "#d32f2f";
     }
   }
 
@@ -322,16 +235,20 @@
 
   function nextQuestion() {
     currentIdx++;
-    if (currentIdx < shuffledQuizData.length) loadQuestion();
+    if (currentIdx < shuffledData.length) loadQuestion();
     else {
-      document.querySelector('.container').innerHTML = "<h2>🎉 Perfect!</h2><button class='action-btn' onclick='location.reload()'>最初から</button>";
+      document.querySelector('.container').innerHTML = "<h2>🎉 Perfect Clear!</h2><button class='action-btn' onclick='location.reload()'>最初から</button>";
     }
   }
 
   function setupPrint() {
     const sheet = document.getElementById('sheetContent');
+    const ans = document.getElementById('answerContent');
+    sheet.innerHTML = "";
+    ans.innerHTML = "";
     quizData.forEach((d, i) => {
-      sheet.innerHTML += `<div class="sheet-question"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")}<br><small>[ ${d.options.join(" / ")} ]</small></div>`;
+      sheet.innerHTML += `<div class="sheet-question"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")}<br><small style="font-size: 14pt;">[ ${d.options.join(" / ")} ]</small></div>`;
+      ans.innerHTML += `Q${i+1}: ${d.a}　`;
     });
   }
 
