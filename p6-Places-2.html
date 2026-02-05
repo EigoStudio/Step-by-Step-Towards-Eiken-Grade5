@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p6 Places Part2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+  :root {
+    --bg-color: #f1f8e9;
+    --text-color: #4e342e;
+    --card-bg: #ffffff;
+    --accent-green: #558b2f;
+    --accent-brown: #795548;
+    --accent-blue: #0288d1;
+    --accent-purple: #673ab7;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .header-area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .header-area h2 {
+    border-bottom: 4px dashed var(--accent-brown);
+    padding-bottom: 2px;
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .container {
+    background: var(--card-bg);
+    width: 100%;
+    max-width: 800px;
+    padding: 15px 20px;
+    border-radius: 20px;
+    box-shadow: 0 6px 15px rgba(78, 52, 46, 0.15);
+    text-align: center;
+    border: 4px solid #fff;
+    position: relative;
+  }
+
+  #resultMsg {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 3px 10px;
+    border-radius: 8px;
+    z-index: 10;
+  }
+
+  .question-box {
+    font-size: 1.4rem; 
+    font-weight: bold;
+    margin-bottom: 10px;
+    background-color: #fff8e1;
+    border-radius: 12px;
+    padding: 15px;
+    border: 3px solid #ffe0b2;
+    min-height: 90px;
+    line-height: 1.5;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+
+  .illustration-placeholder {
+    width: 100%;
+    max-width: 300px; /* スマホデフォルト */
+    height: auto;
+    border-radius: 12px;
+    display: none;
+    margin: 0 auto 15px;
+  }
+
+  @media screen and (min-width: 800px) {
+    .illustration-placeholder {
+      max-width: 450px; /* PC版では画像をしっかり大きく */
+    }
+  }
+
+  .choices-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+  }
+
+  .choice-btn {
+    background-color: white;
+    border: 2px solid var(--accent-brown);
+    padding: 8px 15px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: bold;
+    min-width: 120px;
+  }
+
+  @media screen and (min-width: 600px) {
+    .choice-btn {
+      font-size: 1.3rem;
+      padding: 10px 20px;
+      min-width: 150px;
+    }
+  }
+
+  .choice-btn.selected { background-color: var(--accent-brown); color: white; }
+  .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
+
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .action-btn {
+    padding: 8px 20px;
+    font-size: 1.1rem;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #checkBtn { background-color: var(--accent-green); box-shadow: 0 3px 0 #33691e; }
+  #nextBtn { background-color: #ff9800; box-shadow: 0 3px 0 #e65100; }
+  #hintBtn { background-color: var(--accent-blue); box-shadow: 0 3px 0 #01579b; font-size: 0.9rem; }
+  #speakBtn { background-color: var(--accent-purple); box-shadow: 0 3px 0 #4527a0; }
+  #printBtn { background-color: var(--accent-brown); box-shadow: 0 3px 0 #4e342e; }
+
+  .reset-link {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: var(--accent-brown);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  /* --- 印刷設定（黒字 & 回答削除） --- */
+  #printable-sheet { display: none; }
+  @media print {
+    body { background-color: white !important; }
+    .header-area, .container, #resultMsg, .reset-link { display: none !important; }
+    #printable-sheet { 
+      display: block !important; 
+      position: absolute; left:0; top:0; width:100%; 
+      color: black !important;
+      padding: 0 30px;
+    }
+    .print-title { font-size: 16pt !important; text-align: center; margin-bottom: 10px; color: black; }
+    .print-q { 
+      border-bottom: 1px solid black; 
+      padding: 12px 0;
+      page-break-inside: avoid; 
+    }
+    .print-text { font-size: 13pt; line-height: 2; color: black; }
+    .print-opts { font-size: 12pt; color: black; font-weight: normal; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-area">
+  <button id="hintBtn" class="action-btn" onclick="showHint()">💡 ヒント</button>
+  <div class="title-wrapper">
+    <h2 id="pageTitle">p6 Places Part2</h2>
+  </div>
+</div>
+
+<div class="container">
+  <div id="resultMsg"></div>
+  <div id="questionNum" style="text-align: left; font-weight: bold; color: var(--accent-brown); font-size: 0.8rem; margin-bottom: 5px;">Question</div>
+  
+  <div class="question-box" id="questionText">Loading...</div>
+
+  <img id="headerImage" src="" class="illustration-placeholder" alt="HintImg">
+
+  <div class="choices-grid" id="choicesGrid"></div>
+  
+  <div class="button-row">
+    <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
+    <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">次へ進む ➔</button>
+    <button id="speakBtn" class="action-btn" onclick="speakCurrentSentence()" style="display:none;">🔊 読み上げ</button>
+    <button id="printBtn" class="action-btn" onclick="prepareAndPrint()">🖨️ プリント</button>
+  </div>
+
+  <div class="reset-link" onclick="location.reload()">問題をシャッフルして最初から</div>
+</div>
+
+<div id="printable-sheet">
+  <h1 class="print-title">p6 Places Part2</h1>
+  <div style="text-align:right; font-size: 11pt;">Name: ____________________</div>
+  <div id="sheetContent"></div>
+</div>
+
+<script>
+  // Part2のオリジナル問題データ
+  const originalData = [
+    { q: "Cindy: Where's Grandma?\nBrother: She's at the (      ). She's buying some vegetables.", a: "supermarket", options: ["supermarket", "hospital", "park", "museum"], img: "images-places-2/supermarket.jpg" },
+    { q: "Aya is visiting New York. She is staying at a nice (      ).", a: "hotel", options: ["hotel", "apartment", "school", "bakery"], img: "images-places-2/hotel.jpg" },
+    { q: "Mr. Tanaka likes Italian food. He's eating pizza at a (      ).", a: "restaurant", options: ["restaurant", "cafe", "home", "office"], img: "images-places-2/restaurant.jpg" },
+    { q: "The (      ) is next to the school. The students feel safe.", a: "police station", options: ["police station", "fire station", "post office", "library"], img: "images-places-2/police_station.jpg" },
+    { q: "A: Where's Lisa?\nB: She's at the (      ). She's choosing a new doll.", a: "toy store", options: ["toy store", "bookstore", "flower shop", "supermarket"], img: "images-places-2/toy_store.jpg" },
+    { q: "Sam is playing in the (      ) with his friends.", a: "park", options: ["park", "stadium", "gym", "schoolyard"], img: "images-places-2/park.jpg" },
+    { q: "Ms. Kimura is at the (      ). She's working.", a: "office", options: ["office", "factory", "shop", "hospital"], img: "images-places-2/office.jpg" },
+    { q: "Ms. Suzuki is at the (      ). She needs some money.", a: "bank", options: ["bank", "hospital", "post office", "library"], img: "images-places-2/bank.jpg" }
+  ];
+
+  // --- シャッフル関数 ---
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // 問題データをまるごとシャッフル
+  let quizData = shuffleArray([...originalData]);
+  let currentIdx = 0;
+  let selectedOption = null;
+
+  function loadQuestion() {
+    const data = quizData[currentIdx];
+    document.getElementById('questionText').textContent = data.q;
+    document.getElementById('headerImage').src = data.img;
+    document.getElementById('headerImage').style.display = "none";
+    document.getElementById('hintBtn').style.display = "inline-block";
+    document.getElementById('questionNum').textContent = `Question ${currentIdx + 1} / ${quizData.length}`;
+    
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    selectedOption = null;
+    document.getElementById('resultMsg').textContent = "";
+    document.getElementById('resultMsg').style.backgroundColor = "transparent";
+    document.getElementById('checkBtn').style.display = "inline-block";
+    document.getElementById('nextBtn').style.display = "none";
+    document.getElementById('speakBtn').style.display = "none";
+
+    // 選択肢もシャッフル
+    shuffleArray([...data.options]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "inline-block") return;
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedOption = opt;
+        document.getElementById('questionText').textContent = data.q.replace("(      )", `( ${opt} )`);
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function showHint() {
+    document.getElementById('headerImage').style.display = "block";
+    document.getElementById('hintBtn').style.display = "none";
+  }
+
+  function checkAnswer() {
+    if (!selectedOption) return;
+    const correct = quizData[currentIdx].a;
+    const msg = document.getElementById('resultMsg');
+    
+    if (selectedOption === correct) {
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      document.querySelector('.choice-btn.selected').classList.add('correct-choice');
+      msg.textContent = "Correct! ✨";
+      msg.style.color = "white"; msg.style.backgroundColor = "#558b2f";
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "inline-block";
+      document.getElementById('speakBtn').style.display = "inline-block";
+      document.getElementById('headerImage').style.display = "block";
+      document.getElementById('hintBtn').style.display = "none";
+      document.getElementById('questionText').textContent = quizData[currentIdx].q.replace("(      )", selectedOption);
+    } else {
+      document.querySelector('.choice-btn.selected').classList.add('wrong-choice');
+      msg.textContent = "Wrong 🔄";
+      msg.style.color = "white"; msg.style.backgroundColor = "#d32f2f";
+    }
+  }
+
+  function speakCurrentSentence() {
+    const uttr = new SpeechSynthesisUtterance(document.getElementById('questionText').textContent.split('(※')[0]);
+    uttr.lang = "en-US"; uttr.rate = 0.8;
+    speechSynthesis.speak(uttr);
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < quizData.length) loadQuestion();
+    else {
+      document.querySelector('.container').innerHTML = "<h2>🎉 Perfect!</h2><button class='action-btn' id='checkBtn' onclick='location.reload()'>最初から</button>";
+    }
+  }
+
+  function prepareAndPrint() {
+    const sheet = document.getElementById('sheetContent');
+    sheet.innerHTML = "";
+    // 印刷時は元の順番で出す場合は originalData を、シャッフル版なら quizData を使用
+    quizData.forEach((d, i) => {
+      sheet.innerHTML += `
+        <div class="print-q">
+          <div class="print-text"><b>Q${i+1}.</b> ${d.q.replace(/\n/g, '<br>').replace("(      )", "_______")}</div>
+          <div class="print-opts">(${d.options.join(" / ")})</div>
+        </div>`;
+    });
+    window.print();
+  }
+
+  loadQuestion();
+</script>
+</body>
+</html>
