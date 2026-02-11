@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p9 Sports Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #e3f2fd;
+    --text-color: #263238;
+    --card-bg: #ffffff;
+    --accent-blue: #0277bd;
+    --accent-green: #2e7d32;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffca28; color: #5d4037;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+  }
+  #excellentPopup.show { right: 20px; }
+
+  .header-area {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; max-width: 1000px; margin-bottom: 10px; gap: 20px;
+  }
+
+  .illustration-container {
+    background-color: white; padding: 5px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 150px; transition: width 0.3s;
+  }
+  .illustration-placeholder { width: 100%; height: auto; border-radius: 10px; object-fit: contain; display: block; }
+
+  .title-wrapper h2 { color: var(--text-color); font-size: 1.2rem; margin: 0; border-bottom: 3px dashed var(--accent-blue); }
+
+  .container {
+    background: var(--card-bg); width: 100%; max-width: 1000px;
+    padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center; border: 3px solid #fff;
+  }
+
+  .question-box {
+    font-size: 1.4rem; font-weight: bold; margin-bottom: 15px;
+    background-color: #f1f8e9; border-radius: 12px; padding: 15px;
+    border: 2px solid #c8e6c9; line-height: 1.6; /* 行間を少し広げました */
+  }
+
+  .speaker-icon { display: inline-block; cursor: pointer; font-size: 1.2rem; background: none; border: none; visibility: hidden; margin-left: 5px; }
+
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+
+  .choice-btn {
+    background-color: white; border: 2px solid var(--accent-blue);
+    color: var(--text-color); padding: 8px 20px; border-radius: 12px;
+    font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: all 0.2s;
+  }
+  .choice-btn.selected { background-color: var(--accent-blue); color: white; }
+  .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
+
+  .controls { display: flex; justify-content: center; gap: 15px; }
+  .action-btn {
+    padding: 10px 40px; font-size: 1.2rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 30px; cursor: pointer;
+    box-shadow: 0 4px 0 #1b5e20; font-weight: bold;
+  }
+
+  .bottom-nav { display: flex; gap: 15px; margin-top: 15px; }
+  .nav-btn { color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
+
+  @media (min-width: 600px) {
+    .header-area { margin-bottom: 15px; gap: 40px; }
+    .illustration-container { width: 320px; padding: 10px; } 
+    .title-wrapper h2 { font-size: 2rem; }
+    .question-box { font-size: 2rem; padding: 25px; }
+    .choice-btn { font-size: 1.4rem; padding: 12px 30px; }
+  }
+
+  #printable-sheet { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #printable-sheet, #printable-sheet * { visibility: visible; color: #000 !important; background: none !important; }
+    #printable-sheet { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+    .sheet-question { margin-bottom: 25px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; font-size: 18pt; }
+    .print-no-show { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! ✨</div>
+
+<div class="header-area">
+  <div class="illustration-container">
+    <img id="headerImage" src="" class="illustration-placeholder" alt="SportsImg">
+  </div>
+  <div class="title-wrapper">
+    <h2 id="pageTitle">p9 Sports</h2>
+    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold; margin-top: 5px;">Q 1/14</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="question-box">
+    <span id="questionText">Loading...</span>
+    <button id="speakBtn" class="speaker-icon" onclick="speakCurrentSentence()">🔊</button>
+  </div>
+  <div class="choices-grid" id="choicesGrid"></div>
+  <div class="controls">
+    <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
+    <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">次へ進む ➔</button>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn" style="background-color: var(--accent-green);" onclick="restartQuiz()">最初から</button>
+  <button class="nav-btn" style="background-color: #5d4037;" onclick="window.print()">🖨️ プリント</button>
+</div>
+
+<div id="printable-sheet">
+  <h1 style="text-align:center; border-bottom: 3px solid #000;">p9 Sports - Vocabulary Quiz</h1>
+  <div style="text-align:right; margin-bottom: 30px;">Name: ____________________</div>
+  <div id="sheetContent"></div>
+  <div class="print-no-show" style="margin-top: 40px; padding: 20px; background: #f0f0f0; border: 1px solid #ccc;">
+    <h3>解答 (Answer Key) ※この枠は印刷されません</h3>
+    <div id="answerContent"></div>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    { q: "The children are playing (      ).", a: "soccer", options: ["soccer", "baseball", "golf", "rugby"], img: "images-p9-sports/soccer.jpg" },
+    { q: "Anne and Ken are playing (      ).", a: "badminton", options: ["badminton", "tennis", "soccer", "basketball"], img: "images-p9-sports/badminton.jpg" },
+    { q: "John is playing (      ) with his mother.", a: "table tennis", options: ["table tennis", "tennis", "baseball", "volleyball"], img: "images-p9-sports/table tennis.jpg" },
+    { q: "The boys are playing (      ).", a: "baseball", options: ["baseball", "basketball", "tennis", "soccer"], img: "images-p9-sports/baseball.jpg" },
+    { q: "The girls are playing (      ) in the gym.", a: "basketball", options: ["basketball", "volleyball", "soccer", "golf"], img: "images-p9-sports/basketball.jpg" },
+    { q: "The students are playing (      ).", a: "volleyball", options: ["volleyball", "soccer", "baseball", "golf"], img: "images-p9-sports/volleyball.jpg" },
+    { q: "The (      ) players are big!", a: "rugby", options: ["rugby", "golf", "table tennis", "tennis"], img: "images-p9-sports/rugby.jpg" },
+    { q: "Ken's father plays (      ) on weekends.", a: "golf", options: ["golf", "rugby", "table tennis", "swimming"], img: "images-p9-sports/golf.jpg" },
+    { q: "May has a red tennis (      ).", a: "racket", options: ["racket", "bat", "ball", "goal"], img: "images-p9-sports/racket.jpg" },
+    { q: "Many people are at the stadium. They are watching the baseball (      ).", a: "game", options: ["game", "racket", "bat", "ball"], img: "images-p9-sports/game.jpg" },
+    { q: "Tom has a soccer (      ).", a: "ball", options: ["ball", "bat", "racket", "goal"], img: "images-p9-sports/ball.jpg" },
+    { q: "Tom scored a (      )! He's happy!", a: "goal", options: ["goal", "bat", "racket", "stadium"], img: "images-p9-sports/goal.jpg" },
+    { q: "Sam has a baseball (      ).", a: "bat", options: ["bat", "racket", "goal", "gym"], img: "images-p9-sports/bat.jpg" },
+    { q: "Julie plays (      ) on weekends.", a: "tennis", options: ["tennis", "badminton", "soccer", "golf"], img: "images-p9-sports/tennis.jpg" }
+  ];
+
+  let currentIdx = 0;
+  let selectedOption = null;
+  let shuffledData = [];
+  const blankSpace = "( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )";
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function restartQuiz() {
+    currentIdx = 0;
+    shuffledData = shuffle([...quizData]);
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const data = shuffledData[currentIdx];
+    document.getElementById('questionText').innerHTML = `${currentIdx + 1}. ${data.q.replace("(      )", blankSpace)}`;
+    document.getElementById('headerImage').src = data.img;
+    document.getElementById('questionNum').textContent = `Q ${currentIdx + 1} / ${shuffledData.length}`;
+    
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    selectedOption = null;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('nextBtn').style.display = "none";
+    document.getElementById('speakBtn').style.visibility = "hidden";
+
+    const shuffledOptions = shuffle([...data.options]);
+    shuffledOptions.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected', 'wrong-choice'));
+        btn.classList.add('selected');
+        selectedOption = opt;
+        // 選択中も少し目立つように表示
+        const tempChoice = `<span style="color: var(--accent-blue); padding: 0 10px;">( ${opt} )</span>`;
+        document.getElementById('questionText').innerHTML = `${currentIdx + 1}. ${data.q.replace("(      )", tempChoice)}`;
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function checkAnswer() {
+    if (!selectedOption) { alert("答えを選んでね！"); return; }
+    const correct = shuffledData[currentIdx].a;
+    if (selectedOption === correct) {
+      document.querySelector('.choice-btn.selected').classList.add('correct-choice');
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "block";
+      document.getElementById('speakBtn').style.visibility = "visible";
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+      
+      const highlightedAnswer = `<span style="color: var(--accent-blue); border-bottom: 2px solid var(--accent-blue); padding: 0 10px;">${selectedOption}</span>`;
+      const fullSentence = `${currentIdx + 1}. ${shuffledData[currentIdx].q.replace("(      )", highlightedAnswer)}`;
+      document.getElementById('questionText').innerHTML = fullSentence;
+    } else {
+      document.querySelector('.choice-btn.selected').classList.add('wrong-choice');
+    }
+  }
+
+  function speakCurrentSentence() {
+    const text = shuffledData[currentIdx].q.replace("(      )", shuffledData[currentIdx].a);
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    uttr.rate = 0.8;
+    speechSynthesis.speak(uttr);
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < shuffledData.length) loadQuestion();
+    else {
+      document.querySelector('.container').innerHTML = "<h2>🎉 Perfect Clear!</h2><button class='action-btn' onclick='location.reload()'>最初から</button>";
+    }
+  }
+
+  function setupPrint() {
+    const sheet = document.getElementById('sheetContent');
+    const ans = document.getElementById('answerContent');
+    sheet.innerHTML = "";
+    ans.innerHTML = "";
+    quizData.forEach((d, i) => {
+      sheet.innerHTML += `<div class="sheet-question"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")}<br><small style="font-size: 14pt;">[ ${d.options.join(" / ")} ]</small></div>`;
+      ans.innerHTML += `Q${i+1}: ${d.a}　`;
+    });
+  }
+
+  restartQuiz();
+  setupPrint();
+</script>
+</body>
+</html>
