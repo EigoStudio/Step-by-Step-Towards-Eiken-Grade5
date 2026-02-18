@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p10 Fruits & Vegetables Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #fff9c4; /* フルーツ・野菜らしい明るい黄色 */
+    --text-color: #263238;
+    --card-bg: #ffffff;
+    --accent-blue: #0277bd;
+    --accent-green: #2e7d32;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffca28; color: #5d4037;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+  }
+  #excellentPopup.show { right: 20px; }
+
+  .header-area {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; max-width: 1000px; margin-bottom: 10px; gap: 20px;
+  }
+
+  .illustration-container {
+    background-color: white; padding: 5px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 150px; transition: width 0.3s;
+  }
+  .illustration-placeholder { width: 100%; height: auto; border-radius: 10px; object-fit: contain; display: block; }
+
+  .title-wrapper h2 { color: var(--text-color); font-size: 1.2rem; margin: 0; border-bottom: 3px dashed #fbc02d; }
+
+  .container {
+    background: var(--card-bg); width: 100%; max-width: 1000px;
+    padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center; border: 3px solid #fff;
+  }
+
+  .question-box {
+    font-size: 1.4rem; font-weight: bold; margin-bottom: 5px;
+    background-color: #f1f8e9; border-radius: 12px; padding: 15px;
+    border: 2px solid #c8e6c9; line-height: 1.4;
+  }
+  
+  .translation-text {
+    font-size: 0.9rem; color: #666; margin-bottom: 15px; font-weight: normal;
+  }
+
+  .speaker-icon { display: inline-block; cursor: pointer; font-size: 1.2rem; background: none; border: none; visibility: hidden; margin-left: 5px; }
+
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+
+  .choice-btn {
+    background-color: white; border: 2px solid var(--accent-blue);
+    color: var(--text-color); padding: 8px 20px; border-radius: 12px;
+    font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: all 0.2s;
+  }
+  .choice-btn.selected { background-color: var(--accent-blue); color: white; }
+  .choice-btn.correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .choice-btn.wrong-choice { background-color: #d32f2f !important; color: white !important; border-color: #b71c1c !important; }
+
+  .controls { display: flex; justify-content: center; gap: 15px; }
+  .action-btn {
+    padding: 10px 40px; font-size: 1.2rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 30px; cursor: pointer;
+    box-shadow: 0 4px 0 #1b5e20; font-weight: bold;
+  }
+
+  .bottom-nav { display: flex; gap: 15px; margin-top: 15px; }
+  .nav-btn { color: white; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
+
+  @media (min-width: 600px) {
+    .header-area { margin-bottom: 15px; gap: 40px; }
+    .illustration-container { width: 280px; padding: 10px; } 
+    .title-wrapper h2 { font-size: 1.8rem; }
+    .question-box { font-size: 1.8rem; padding: 20px; }
+    .choice-btn { font-size: 1.4rem; padding: 12px 30px; }
+    #questionNum { font-size: 1.2rem; }
+  }
+
+  #printable-sheet { display: none; }
+  @media print {
+    body * { visibility: hidden; }
+    #printable-sheet, #printable-sheet * { visibility: visible; color: #000 !important; }
+    #printable-sheet { display: block; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; }
+    .sheet-question { margin-bottom: 25px; border-bottom: 1px dashed #ccc; padding-bottom: 15px; font-size: 16pt; }
+    .print-no-show { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! ✨</div>
+
+<div class="header-area">
+  <div class="illustration-container">
+    <img id="headerImage" src="images-fruits/apple.jpg" class="illustration-placeholder" alt="ItemImg">
+  </div>
+  <div class="title-wrapper">
+    <h2 id="pageTitle">p10 Fruits & Vegetables</h2>
+    <div id="questionNum" style="color: var(--accent-blue); font-weight: bold; margin-top: 5px;">Q 1/20</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="question-box">
+    <span id="questionText">Loading...</span>
+    <button id="speakBtn" class="speaker-icon" onclick="speakCurrentSentence()">🔊</button>
+  </div>
+  <div id="translationText" class="translation-text">和訳がここに表示されます</div>
+  
+  <div class="choices-grid" id="choicesGrid"></div>
+  <div class="controls">
+    <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
+    <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">次へ進む ➔</button>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-btn" style="background-color: var(--accent-green);" onclick="restartQuiz()">最初から</button>
+  <button class="nav-btn" style="background-color: #5d4037;" onclick="window.print()">🖨️ プリント</button>
+</div>
+
+<div id="printable-sheet">
+  <h1 style="text-align:center; border-bottom: 3px solid #000;">p10 Fruits & Vegetables - English Quiz</h1>
+  <div style="text-align:right; margin-bottom: 30px;">Name: ____________________</div>
+  <div id="sheetContent"></div>
+  <div class="print-no-show" style="margin-top: 40px; padding: 20px; background: #f0f0f0; border: 1px solid #ccc;">
+    <h3>解答 (Answer Key)</h3>
+    <div id="answerContent"></div>
+  </div>
+</div>
+
+<script>
+  const quizData = [
+    // Fruits Section
+    { q: "I want (      ) apple.", t: "私はリンゴが1個ほしいです。", a: "an", options: ["a", "an", "some", "two"], img: "images-fruits/apple.jpg" },
+    { q: "I eat some (      ).", t: "私はイチゴをいくらか食べます。", a: "strawberries", options: ["strawberry", "strawberries", "strawberrys", "a strawberry"], img: "images-fruits/strawberries.jpg" },
+    { q: "I want some (      ).", t: "私はスイカ（カットしたもの）をいくらか食べたいです。", a: "watermelon", options: ["watermelon", "watermelons", "a watermelon", "an watermelon"], img: "images-fruits/watermelon.jpg" },
+    { q: "I like (      ) the best.", t: "私はブドウが一番好きです。", a: "grapes", options: ["grape", "grapes", "a grape", "an grape"], img: "images-fruits/grapes.jpg" },
+    { q: "I have (      ) banana.", t: "私はバナナを1本持っています。", a: "a", options: ["a", "an", "some", "any"], img: "images-fruits/banana.jpg" },
+    { q: "I have some (      ).", t: "私はさくらんぼをいくつか持っています。", a: "cherries", options: ["cherrys", "cherries", "cherry", "a cherry"], img: "images-fruits/cherries.jpg" },
+    { q: "I eat some (      ).", t: "私はパイナップル（カットしたもの）をいくらか食べます。", a: "pineapple", options: ["pineapple", "pineapples", "a pineapple", "an pineapple"], img: "images-fruits/pineapple.jpg" },
+    { q: "I like (      ) very much.", t: "私はオレンジが大好きです。", a: "oranges", options: ["orange", "oranges", "an orange", "a orange"], img: "images-fruits/oranges.jpg" },
+    { q: "I have (      ) peach.", t: "私は桃を1個持っています。", a: "a", options: ["a", "an", "some", "two"], img: "images-fruits/peach.jpg" },
+    { q: "I have three (      ).", t: "私はレモンを3つ持っています。", a: "lemons", options: ["lemon", "lemons", "lemones", "lemonies"], img: "images-fruits/lemons.jpg" },
+
+    // Vegetables Section
+    { q: "I need some (      ) for the salad.", t: "サラダのためにキュウリ（数本）が必要です。", a: "cucumbers", options: ["cucumber", "cucumbers", "a cucumber", "some cucumber"], img: "images-vegetables/cucumbers.jpg" },
+    { q: "Let's buy (      ) cabbage.", t: "キャベツを1玉買いましょう。", a: "a", options: ["a", "an", "some", "two"], img: "images-vegetables/cabbage.jpg" },
+    { q: "We need some (      ) for the soup.", t: "スープのためにジャガイモ（数個）が必要です。", a: "potatoes", options: ["potato", "potatoes", "potatos", "a potato"], img: "images-vegetables/potatoes.jpg" },
+    { q: "Do we have (      ) onion at home?", t: "家にタマネギは1個ある？", a: "an", options: ["a", "an", "any", "onions"], img: "images-vegetables/onion.jpg" },
+    { q: "I like (      ).", t: "私はトマトが大好きです。", a: "tomatoes", options: ["tomato", "tomatoes", "tomatos", "a tomato"], img: "images-vegetables/tomatoes.jpg" },
+    { q: "I want (      ) broccoli.", t: "ブロッコリーを1つほしいです。", a: "a", options: ["a", "an", "many", "some"], img: "images-vegetables/broccoli.jpg" },
+    { q: "How many (      ) do we need?", t: "ニンジンは何本必要ですか？", a: "carrots", options: ["carrot", "carrots", "a carrot", "some carrots"], img: "images-vegetables/carrots.jpg" },
+    { q: "These (      ) are very big.", t: "これらのカボチャはとても大きいです。", a: "pumpkins", options: ["pumpkin", "pumpkins", "a pumpkin", "an pumpkin"], img: "images-vegetables/pumpkins.jpg" },
+    { q: "I like all (      ).", t: "私はすべての野菜が好きです。", a: "vegetables", options: ["vegetables", "vegtabels", "vegetabels", "begetables"], img: "images-vegetables/vegetables.jpg" },
+    { q: "(      )'s go home.", t: "（買い物が終わったので）家に帰りましょう。", a: "Let", options: ["Let", "Do", "How", "Please"], img: "images-vegetables/checkout.jpg" }
+  ];
+
+  let currentIdx = 0;
+  let selectedOption = null;
+  let shuffledData = [];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function restartQuiz() {
+    currentIdx = 0;
+    shuffledData = shuffle([...quizData]);
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const data = shuffledData[currentIdx];
+    document.getElementById('questionText').textContent = data.q;
+    document.getElementById('translationText').textContent = data.t;
+    document.getElementById('headerImage').src = data.img;
+    document.getElementById('questionNum').textContent = `Q ${currentIdx + 1} / ${shuffledData.length}`;
+    
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    selectedOption = null;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('nextBtn').style.display = "none";
+    document.getElementById('speakBtn').style.visibility = "hidden";
+
+    const shuffledOptions = shuffle([...data.options]);
+    shuffledOptions.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected', 'wrong-choice'));
+        btn.classList.add('selected');
+        selectedOption = opt;
+        document.getElementById('questionText').textContent = data.q.replace("(      )", `( ${opt} )`);
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function checkAnswer() {
+    if (!selectedOption) { alert("答えを選んでね！"); return; }
+    const correct = shuffledData[currentIdx].a;
+    if (selectedOption === correct) {
+      document.querySelector('.choice-btn.selected').classList.add('correct-choice');
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "block";
+      document.getElementById('speakBtn').style.visibility = "visible";
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+      const fullSentence = shuffledData[currentIdx].q.replace("(      )", selectedOption);
+      document.getElementById('questionText').textContent = fullSentence;
+    } else {
+      document.querySelector('.choice-btn.selected').classList.add('wrong-choice');
+    }
+  }
+
+  function speakCurrentSentence() {
+    const text = document.getElementById('questionText').textContent;
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = "en-US";
+    uttr.rate = 0.8;
+    speechSynthesis.speak(uttr);
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < shuffledData.length) loadQuestion();
+    else {
+      document.querySelector('.container').innerHTML = "<h2>🎉 All Done! Great Job!</h2><button class='action-btn' onclick='location.reload()'>最初から</button>";
+    }
+  }
+
+  function setupPrint() {
+    const sheet = document.getElementById('sheetContent');
+    const ans = document.getElementById('answerContent');
+    sheet.innerHTML = "";
+    ans.innerHTML = "";
+    quizData.forEach((d, i) => {
+      sheet.innerHTML += `<div class="sheet-question"><b>Q${i+1}.</b> ${d.q.replace("(      )", "( ________ )")} <span style="font-size: 11pt; color: #666;">(${d.t})</span><br><small style="font-size: 14pt;">[ ${d.options.join(" / ")} ]</small></div>`;
+      ans.innerHTML += `Q${i+1}: ${d.a}　`;
+    });
+  }
+
+  restartQuiz();
+  setupPrint();
+</script>
+</body>
+</html>
