@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eiken Grade 5: Foods Dialogue Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { 
+    --mcd-red: #da291c;
+    --mcd-yellow: #ffc72c;
+    --text-black: #272321;    
+    --text-gray: #555555;
+  }
+
+  body { 
+    font-family: 'Andika', 'Hiragino Maru Gothic ProN', 'Meiryo', sans-serif; 
+    background: var(--mcd-yellow); 
+    display: flex; 
+    justify-content: center; 
+    padding: 20px; 
+    margin: 0;
+  }
+
+  .container { 
+    width: 95%; 
+    max-width: 850px; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    border-top: 15px solid var(--mcd-red);
+  }
+
+  .title-area { text-align: center; margin-bottom: 20px; }
+  h1 { color: var(--mcd-red); font-size: 1.8rem; margin: 0; font-weight: bold; }
+
+  .audio-controls {
+    background: #f9f9f9;
+    padding: 10px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    border: 1px solid #eee;
+  }
+  .audio-btn {
+    background: white; border: 2px solid var(--mcd-red); cursor: pointer; 
+    border-radius: 50%; width: 45px; height: 45px; font-size: 1.2rem; transition: 0.3s;
+  }
+  .audio-btn.active { background: var(--mcd-red); color: white; }
+  
+  .speed-slider-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .speed-label { font-size: 0.8rem; font-weight: bold; color: var(--text-gray); }
+  input[type=range] { flex-grow: 1; cursor: pointer; accent-color: var(--mcd-red); }
+
+  .nav { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+  .nav-btn { 
+    flex: 1;
+    max-width: 80px;
+    padding: 8px 0; border: 2px solid var(--mcd-red); background: white; 
+    color: var(--mcd-red); cursor: pointer; font-weight: bold; border-radius: 30px; transition: 0.3s;
+    font-size: 0.9rem;
+  }
+  .nav-btn.active { background: var(--mcd-red); color: white; }
+
+  .chat-box { min-height: 400px; border: 2px solid #eee; padding: 20px; display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; background: #fffaf0; border-radius: 15px; overflow-y: auto; }
+  
+  .bubble { 
+    max-width: 85%; padding: 15px; line-height: 1.5; font-size: 1.3rem; 
+    position: relative; border-radius: 15px; border: 1px solid #ddd;
+  }
+
+  .left-role { align-self: flex-start; background: #ffffff; border-left: 8px solid var(--mcd-red); }
+  .right-role { align-self: flex-end; background: #fffde7; border-right: 8px solid var(--mcd-yellow); }
+
+  .role-name { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; display: block; color: var(--text-gray); }
+  .en { color: var(--text-black); display: block; }
+  .jp { font-size: 0.95rem; color: var(--text-gray); display: block; margin-top: 8px; border-top: 1px dashed #ccc; padding-top: 5px; }
+
+  .blank { display: inline-block; min-width: 80px; border-bottom: 2px solid var(--mcd-red); margin: 0 4px; text-align: center; }
+  strong.ans { color: var(--mcd-red); text-decoration: underline; font-weight: bold; }
+
+  .controls { display: flex; gap: 10px; }
+  .btn { 
+    flex: 1; padding: 15px; border: none; background: var(--mcd-red); 
+    color: #fff; font-weight: bold; cursor: pointer; font-size: 1.2rem; border-radius: 10px; 
+    box-shadow: 0 4px 0 #a31d14;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: none; }
+  .progress { text-align: center; font-size: 0.8rem; color: #999; margin-bottom: 8px; }
+
+  #print-section { display: none; }
+
+  /* 印刷用設定 */
+  @media print {
+    @page { size: A4; margin: 10mm; }
+    body { background: white; padding: 0; }
+    .container { display: none; }
+    #print-section { display: block; color: black; width: 100%; }
+    .print-page { page-break-after: always; padding: 5px; }
+    
+    /* タイトルのフォントを小さく、マージンを縮小 */
+    h2.print-main-title { 
+      font-size: 1.3rem; 
+      margin: 5px 0 10px 0; 
+      text-align: center; 
+    }
+
+    .print-part { margin-bottom: 35px; }
+    .print-title { font-size: 1.1rem; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 12px; padding-bottom: 3px; }
+    
+    .p-bubble { margin-bottom: 15px; font-size: 1.05rem; line-height: 1.6; }
+    .p-role { font-weight: bold; margin-right: 12px; display: inline-block; min-width: 65px; }
+    .p-blank { display: inline-block; width: 130px; border-bottom: 1px solid #000; vertical-align: bottom; }
+    
+    /* 和訳の行間を確保 */
+    .p-jp { 
+      font-size: 0.9rem; 
+      color: #444; 
+      margin-left: 77px; 
+      display: block; 
+      margin-top: 5px; 
+    }
+
+    /* 語群の改行防止とフォント調整 */
+    .word-bank { 
+      margin-top: 15px; 
+      text-align: center; 
+      font-size: 0.95rem; 
+      width: 100%;
+    }
+    .word-bank span { 
+      margin: 0 10px; 
+      white-space: nowrap; /* 閉じ括弧の泣き別れを防止 */
+      display: inline-block;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 15px; }
+    .bubble { font-size: 1.05rem; }
+    h1 { font-size: 1.4rem; }
+    .btn { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="title-area">
+    <h1>Eiken Grade 5 Foods Dialogue</h1>
+  </div>
+
+  <div class="audio-controls">
+    <button id="audioBtn" class="audio-btn active" onclick="toggleAudio()">🔊</button>
+    <div class="speed-slider-container">
+      <span class="speed-label">🐢</span>
+      <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.8">
+      <span class="speed-label">🐰</span>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="nav0" class="nav-btn active" onclick="switchDialog(0)">Part 1</button>
+    <button id="nav1" class="nav-btn" onclick="switchDialog(1)">Part 2</button>
+    <button id="nav2" class="nav-btn" onclick="switchDialog(2)">Part 3</button>
+    <button id="nav3" class="nav-btn" onclick="switchDialog(3)">Part 4</button>
+  </div>
+  
+  <div id="progressText" class="progress">Step 1 / 6</div>
+  <div class="chat-box" id="chatBox"></div>
+  <div class="controls">
+    <button class="btn" id="actionBtn" onclick="handleAction()">Start Dialog</button>
+  </div>
+</div>
+
+<div id="print-section">
+  <div class="print-page">
+    <h2 class="print-main-title">Foods Dialogue Worksheet (1/2)</h2>
+    <div id="print-part-1" class="print-part"></div>
+    <div id="print-part-2" class="print-part"></div>
+  </div>
+  <div class="print-page">
+    <h2 class="print-main-title">Foods Dialogue Worksheet (2/2)</h2>
+    <div id="print-part-3" class="print-part"></div>
+    <div id="print-part-4" class="print-part"></div>
+  </div>
+</div>
+
+<script>
+const scenarios = [
+  {
+    title: "Part 1",
+    bank: ["sandwich", "cheese", "egg", "bread"],
+    steps: [
+      { role: "Dad", en: "What do you want for lunch?", jp: "お昼ごはんに何が食べたい？" },
+      { role: "Child", en: "I want a <span class='blank'></span>.", ans: ["sandwich"], jp: "サンドイッチが食べたいな。" },
+      { role: "Dad", en: "Ham and <span class='blank'></span>?", ans: ["cheese"], jp: "ハムとチーズ？" },
+      { role: "Child", en: "No, I want an <span class='blank'></span> <span class='blank'></span>.", ans: ["egg", "sandwich"], jp: "ううん、タマゴサンドがいい。" },
+      { role: "Dad", en: "OK! But we don't have <span class='blank'></span>.", ans: ["bread"], jp: "わかった！でもパンがないよ。" },
+      { role: "Child", en: "Let's go to the supermarket!", jp: "スーパーマーケットに行こう！" }
+    ]
+  },
+  {
+    title: "Part 2",
+    bank: ["sausages", "hot dog", "hamburger", "vegetables", "salad", "French fries"],
+    steps: [
+      { role: "Mom", en: "We have <span class='blank'></span>. Do you want a <span class='blank'></span>?", ans: ["sausages", "hot dog"], jp: "ソーセージがあるわよ。ホットドッグにする？" },
+      { role: "Child", en: "No, I want a <span class='blank'></span>.", ans: ["hamburger"], jp: "ううん、ハンバーガーがいいな。" },
+      { role: "Mom", en: "We can go to the hamburger shop, but you have to eat some <span class='blank'></span>, too. How about a <span class='blank'></span> instead of <span class='blank'></span>?", ans: ["vegetables", "salad", "French fries"], jp: "ハンバーガーショップに行ってもいいけど、野菜も食べなきゃ。フライドポテトの代わりにサラダはどう？" },
+      { role: "Child", en: "No <span class='blank'></span>?! OK, I'll eat the <span class='blank'></span>.", ans: ["French fries", "salad"], jp: "ポテトなし！？わかったよ、サラダを食べるよ。" }
+    ]
+  },
+  {
+    title: "Part 3",
+    bank: ["toast", "rice", "soup"],
+    steps: [
+      { role: "Friend", en: "Do you eat <span class='blank'></span> or <span class='blank'></span> for breakfast?", ans: ["toast", "rice"], jp: "普段朝ごはんには、トーストとご飯どっちを食べる？" },
+      { role: "Child", en: "I always eat <span class='blank'></span>.", ans: ["rice"], jp: "断然ご飯を食べるよ。" },
+      { role: "Friend", en: "Really? Why?", jp: "本当？どうして？" },
+      { role: "Child", en: "Because I love miso <span class='blank'></span>.", ans: ["soup"], jp: "だってお味噌汁が大好きだから。" }
+    ]
+  },
+  {
+    title: "Part 4",
+    bank: ["pizza", "spaghetti", "curry", "rice", "Chicken"],
+    steps: [
+      { role: "Brother", en: "Let's go to the Italian restaurant! I want <span class='blank'></span> and <span class='blank'></span>.", ans: ["pizza", "spaghetti"], jp: "イタリアンレストランに行こう！ピザとスパゲッティが食べたいんだ！" },
+      { role: "Sister", en: "Wait! I want to go to the <span class='blank'></span> restaurant. I want <span class='blank'></span> and <span class='blank'></span>.", ans: ["curry", "curry", "rice"], jp: "待って！私はあのカレー屋さんに行きたいな。カレーとご飯がいいの。" },
+      { role: "Brother", en: "That's fine. I like the Tandoori <span class='blank'></span> there.", ans: ["Chicken"], jp: "いいよ。あそこならタンドリーチキンも好きだからね。" }
+    ]
+  }
+];
+
+let currentScenario = 0, sIdx = 0, waiting = false, isAudioActive = true;
+
+function getYoungFemaleVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = ["Google US English", "Microsoft Zira", "Samantha", "Victoria"];
+  return voices.find(v => preferred.some(p => v.name.includes(p))) || voices.find(v => v.lang.includes("en") && (v.name.includes("Female") || v.name.includes("Woman")));
+}
+
+function speak(text) {
+  if (!isAudioActive) return;
+  window.speechSynthesis.cancel();
+  const uttr = new SpeechSynthesisUtterance(text);
+  uttr.voice = getYoungFemaleVoice();
+  uttr.lang = 'en-US';
+  uttr.rate = parseFloat(document.getElementById('speedSlider').value);
+  window.speechSynthesis.speak(uttr);
+}
+
+function handleAction() {
+  const btn = document.getElementById('actionBtn');
+  const scenario = scenarios[currentScenario];
+  if (sIdx >= scenario.steps.length) { 
+    sIdx = 0; waiting = false;
+    document.getElementById('chatBox').innerHTML = "";
+    btn.textContent = "Start Dialog";
+    updateProgress();
+    return; 
+  }
+  const step = scenario.steps[sIdx];
+  if (!waiting) {
+    addBubble(step.role, step.en, step.jp);
+    if (step.ans) { 
+        btn.textContent = "Check Answer"; 
+        waiting = true; 
+    } else { 
+        speak(step.en); 
+        sIdx++; 
+        updateProgress(); 
+        btn.textContent = sIdx >= scenario.steps.length ? "Finish!" : "Next Step"; 
+    }
+  } else {
+    const bubbles = document.querySelectorAll('.bubble');
+    const lastEn = bubbles[bubbles.length - 1].querySelector('.en');
+    let fullText = step.en;
+    let displayEn = step.en;
+    step.ans.forEach(a => { 
+        displayEn = displayEn.replace("<span class='blank'></span>", `<strong class="ans">${a}</strong>`);
+        fullText = fullText.replace("<span class='blank'></span>", a);
+    });
+    lastEn.innerHTML = displayEn;
+    speak(fullText.replace(/<\/?[^>]+(>|$)/g, ""));
+    waiting = false; sIdx++; updateProgress();
+    btn.textContent = sIdx >= scenario.steps.length ? "Finish!" : "Next Step";
+  }
+}
+
+function generateWorksheet() {
+  scenarios.forEach((s, idx) => {
+    const target = document.getElementById(`print-part-${idx + 1}`);
+    let html = `<div class="print-title">${s.title}</div>`;
+    s.steps.forEach(step => {
+      let printEn = step.en.replace(/<span class='blank'><\/span>/g, "<span class='p-blank'></span>");
+      html += `<div class="p-bubble"><span class="p-role">${step.role}:</span>${printEn}<span class="p-jp">${step.jp}</span></div>`;
+    });
+    const shuffledBank = [...new Set(s.bank)].sort(() => Math.random() - 0.5);
+    html += `<div class="word-bank">${shuffledBank.map(w => `<span>[ ${w} ]</span>`).join("")}</div>`;
+    target.innerHTML = html;
+  });
+}
+
+function switchDialog(n) {
+  currentScenario = n; sIdx = 0; waiting = false;
+  document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === n));
+  document.getElementById('chatBox').innerHTML = "";
+  document.getElementById('actionBtn').textContent = "Start Dialog";
+  updateProgress();
+}
+
+function addBubble(role, en, jp) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  const isLeft = ['Dad','Mom','Friend','Brother'].includes(role);
+  div.className = `bubble ${isLeft ? 'left-role' : 'right-role'}`;
+  div.innerHTML = `<span class="role-name">${role}</span><span class="en">${en}</span><span class="jp">${jp}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function updateProgress() {
+  const scenario = scenarios[currentScenario];
+  document.getElementById('progressText').textContent = `Step ${Math.min(sIdx + 1, scenario.steps.length)} / ${scenario.steps.length}`;
+}
+
+function toggleAudio() {
+  isAudioActive = !isAudioActive;
+  document.getElementById('audioBtn').textContent = isAudioActive ? "🔊" : "🔈";
+  document.getElementById('audioBtn').classList.toggle('active', isAudioActive);
+}
+
+window.onload = () => {
+  generateWorksheet();
+  window.speechSynthesis.onvoiceschanged = getYoungFemaleVoice;
+};
+</script>
+</body>
+</html>
