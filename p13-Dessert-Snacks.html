@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>p13 Dessert / Snack Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+  :root {
+    --bg-color: #fce4ec; /* デザートらしくピンク系 */
+    --text-color: #4e342e;
+    --card-bg: #ffffff;
+    --accent-pink: #e91e63;
+    --accent-brown: #795548;
+    --accent-blue: #0288d1;
+    --accent-purple: #673ab7;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  /* 印刷用設定: コマンドPでワークシート形式に */
+  @media print {
+    body { background-color: white !important; padding: 0; }
+    .header-area, #resultMsg, .choices-grid, .button-row, .reset-link, #hintBtn, #questionNum { display: none !important; }
+    .container { box-shadow: none !important; border: none !important; width: 100% !important; max-width: none !important; }
+    .question-box { border: 1px solid #ccc !important; margin-bottom: 20px !important; color: black !important; }
+    .print-only { display: block !important; }
+    .illustration-placeholder { display: none !important; }
+    #quiz-container { display: none !important; }
+    #print-worksheet { display: block !important; }
+  }
+
+  .print-only { display: none; text-align: left; }
+  #print-worksheet h1 { font-size: 1.5rem; border-bottom: 2px solid #000; margin-bottom: 20px; }
+  .print-item { margin-bottom: 15px; font-size: 1.2rem; }
+
+  /* 画面表示用スタイル */
+  .header-area { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; width: 100%; max-width: 800px; }
+  .header-area h2 { border-bottom: 4px dashed var(--accent-pink); padding-bottom: 2px; margin: 0; font-size: 1.4rem; }
+
+  .container { background: var(--card-bg); width: 100%; max-width: 800px; padding: 15px 20px; border-radius: 20px; box-shadow: 0 6px 15px rgba(78, 52, 46, 0.15); text-align: center; border: 4px solid #fff; position: relative; }
+  #resultMsg { position: absolute; top: 10px; right: 15px; font-weight: bold; font-size: 1.1rem; padding: 3px 10px; border-radius: 8px; z-index: 10; }
+
+  .question-box { font-size: 1.3rem; font-weight: bold; margin-bottom: 10px; background-color: #fffafb; border-radius: 12px; padding: 15px; border: 3px solid #fce4ec; min-height: 100px; line-height: 1.6; text-align: left; white-space: pre-wrap; }
+  
+  .illustration-placeholder {
+    width: 100%;
+    max-width: 300px;
+    height: 250px;
+    border-radius: 12px;
+    display: none;
+    margin: 0 auto 15px;
+    object-fit: contain;
+  }
+
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px; }
+  .choice-btn { background-color: white; border: 2px solid var(--accent-pink); padding: 10px 15px; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; min-width: 140px; }
+  .choice-btn.selected { background-color: var(--accent-pink); color: white; }
+  .choice-btn.correct-choice { background-color: #4caf50 !important; color: white !important; border-color: #4caf50 !important; }
+  .choice-btn.wrong-choice { background-color: #f44336 !important; color: white !important; border-color: #d32f2f !important; }
+
+  .button-row { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; }
+  .action-btn { padding: 10px 25px; font-size: 1.1rem; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+  #checkBtn { background-color: #4caf50; box-shadow: 0 3px 0 #2e7d32; }
+  #nextBtn { background-color: #ff9800; box-shadow: 0 3px 0 #e65100; }
+  #hintBtn { background-color: var(--accent-blue); box-shadow: 0 3px 0 #01579b; }
+
+  .reset-link { margin-top: 20px; font-size: 0.85rem; color: var(--accent-brown); cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div id="print-worksheet" class="print-only">
+  <h1>p13 Dessert / Snack Worksheet</h1>
+  <div id="worksheet-content"></div>
+</div>
+
+<div id="quiz-container">
+  <div class="header-area">
+    <button id="hintBtn" class="action-btn" onclick="showHint()">💡 ヒント（絵をみる）</button>
+    <div class="title-wrapper">
+      <h2 id="pageTitle">p13 Dessert / Snack</h2>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="resultMsg"></div>
+    <div id="questionNum" style="text-align: left; font-weight: bold; color: var(--accent-brown); font-size: 0.9rem; margin-bottom: 5px;">Question</div>
+    
+    <div class="question-box" id="questionText">Loading...</div>
+    <img id="headerImage" src="" class="illustration-placeholder" alt="HintImg">
+    <div class="choices-grid" id="choicesGrid"></div>
+    
+    <div class="button-row">
+      <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
+      <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">次へ進む ➔</button>
+    </div>
+
+    <div class="reset-link" onclick="location.reload()">問題を入れ替えて最初から</div>
+  </div>
+</div>
+
+<script>
+ const allData = [
+    { 
+      q: "A: Mom, can I eat some (      )?\nB: Not now. Eat your sandwich first!", 
+      a: "potato chips", 
+      options: ["potato chips", "juice", "carrots", "chopsticks"], 
+      img: "images-p13-dessert/potatochips.jpg" 
+    },
+    { 
+      q: "A: What are you doing?\nB: I am making (      ) for the party.", 
+      a: "doughnuts", 
+      options: ["doughnuts", "water", "bananas", "salt"], 
+      img: "images-p13-dessert/doughnut.jpg" 
+    },
+    { 
+      q: "A: Mom, can I have a snack?\nB: Sure. You can have some (      ). They are on the table.", 
+      a: "cookies", 
+      options: ["cookies", "milk", "cabbage", "soup"], 
+      img: "images-p13-dessert/cookie.jpg" 
+    },
+    { 
+      q: "A: What do you want for dessert?\nB: (      ), please.", 
+      a: "Apple pie", 
+      options: ["Apple pie", "Hamburgers", "Onions", "Fish"], 
+      img: "images-p13-dessert/applepie.jpg" 
+    },
+    { 
+      q: "A: My throat hurts. Can I have a piece of (      )?\nB: Sure. Here you are.", 
+      a: "candy", 
+      options: ["candy", "curry", "potatoes", "coffee"], 
+      img: "images-p13-dessert/candy.jpg" 
+    },
+    { 
+      q: "A: It's Mom's birthday today.\nB: I know. Let's make a (      ) for her.", 
+      a: "cake", 
+      options: ["cake", "sausage", "orange juice", "peach"], 
+      img: "images-p13-dessert/cake.jpg" 
+    },
+    { 
+      q: "A: Let's watch a movie, Dad.\nB: OK. I'll make some (      ).", 
+      a: "popcorn", 
+      options: ["popcorn", "water", "eggs", "tomatoes"], 
+      img: "images-p13-dessert/popcorn.jpg" 
+    },
+    { 
+      q: "A: I want to eat something sweet.\nB: Me too. Let's buy some (      ) at the shop.", 
+      a: "chocolate", 
+      options: ["chocolate", "pizza", "lemons", "onions"], 
+      img: "images-p13-dessert/chocolate.jpg" 
+    },
+    { 
+      q: "A: What do you want for dessert?\nB: I want some (      ), please.", 
+      a: "ice cream", 
+      options: ["ice cream", "steak", "carrots", "tea"], 
+      img: "images-p13-dessert/icecream.jpg" 
+    }
+  ];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // 印刷用コンテンツの生成
+  const worksheet = document.getElementById('worksheet-content');
+  allData.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'print-item';
+    div.innerHTML = `${index + 1}. ${item.q.replace(/\n/g, '<br>')}<br>Answer: [ ____________________ ]<br>`;
+    worksheet.appendChild(div);
+  });
+
+  let quizData = shuffle([...allData]);
+  let currentIdx = 0;
+  let selectedOption = null;
+
+  function loadQuestion() {
+    const data = quizData[currentIdx];
+    document.getElementById('questionText').textContent = data.q;
+    document.getElementById('headerImage').src = data.img;
+    document.getElementById('headerImage').style.display = "none";
+    document.getElementById('hintBtn').style.display = "inline-block";
+    document.getElementById('questionNum').textContent = `Question ${currentIdx + 1} / ${quizData.length}`;
+    
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    selectedOption = null;
+    document.getElementById('resultMsg').textContent = "";
+    document.getElementById('resultMsg').style.backgroundColor = "transparent";
+    document.getElementById('checkBtn').style.display = "inline-block";
+    document.getElementById('nextBtn').style.display = "none";
+
+    shuffle([...data.options]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "inline-block") return;
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedOption = opt;
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  function showHint() {
+    document.getElementById('headerImage').style.display = "block";
+    document.getElementById('hintBtn').style.display = "none";
+  }
+
+  function checkAnswer() {
+    if (!selectedOption) return;
+    const correct = quizData[currentIdx].a;
+    const msg = document.getElementById('resultMsg');
+    
+    if (selectedOption === correct) {
+      confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#ff4081', '#ffffff', '#ffeb3b'] });
+      document.querySelector('.choice-btn.selected').classList.add('correct-choice');
+      msg.textContent = "Correct! 🍭";
+      msg.style.color = "white"; msg.style.backgroundColor = "#4caf50";
+      
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "inline-block";
+      document.getElementById('headerImage').style.display = "block";
+      document.getElementById('hintBtn').style.display = "none";
+
+      const fullSentence = quizData[currentIdx].q.replace("(      )", `( ${selectedOption} )`);
+      document.getElementById('questionText').textContent = fullSentence;
+    } else {
+      document.querySelector('.choice-btn.selected').classList.add('wrong-choice');
+      msg.textContent = "Try Again 🔄";
+      msg.style.color = "white"; msg.style.backgroundColor = "#f44336";
+    }
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < quizData.length) loadQuestion();
+    else {
+      document.querySelector('.container').innerHTML = "<h2>🎉 Perfect! You finished all snacks!</h2><button class='action-btn' id='checkBtn' onclick='location.reload()'>もう一度（問題をシャッフル）</button>";
+    }
+  }
+
+  loadQuestion();
+</script>
+</body>
+</html>
