@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Step by Step Towards EIKEN Grade 5 p50 Verbs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f1f8e9;
+            --header-gray: #455a64;
+            --accent-yellow: #fdd835;
+            --text-dark: #263238;
+            --white: #ffffff;
+            --error-red: #ff5252;
+            --success-green: #4caf50;
+            --base-font: 'Andika', "Hiragino Maru Gothic ProN", "Hiragino Maru Gothic Pro", "Yu Gothic", "Meiryo", sans-serif;
+        }
+
+        body {
+            font-family: var(--base-font);
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--header-gray);
+            color: var(--white);
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            margin: 20px 0;
+            background: var(--white);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            text-align: center;
+            border: 5px solid var(--accent-yellow);
+        }
+
+        .progress-bar { font-size: 1.1rem; color: var(--header-gray); margin-bottom: 15px; font-weight: bold; }
+        
+        .word-display { 
+            font-size: 4.5rem; 
+            font-weight: 700; 
+            color: var(--header-gray); 
+            margin: 10px 0 30px 0; 
+            letter-spacing: 2px;
+        }
+
+        .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .choice-btn {
+            background: var(--white);
+            border: 3px solid var(--header-gray);
+            border-radius: 20px;
+            font-size: 1.6rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--header-gray);
+            font-family: var(--base-font);
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        ruby { ruby-position: over; }
+        rt { font-size: 0.55em; font-weight: normal; color: #546e7a; }
+
+        .choice-btn:hover { background-color: #eceff1; transform: scale(1.02); }
+        .choice-btn.wrong { background-color: #ffebee; border-color: var(--error-red); color: var(--error-red); animation: shake 0.3s; }
+
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        #result-screen { display: none; }
+        .score-num { font-size: 4rem; color: var(--header-gray); font-weight: 700; }
+        .mistake-list { text-align: left; background: #fafafa; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px solid #cfd8dc; }
+        .mistake-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+
+        .action-btn { 
+            background-color: var(--header-gray); 
+            color: white; 
+            border: none; 
+            padding: 15px 40px; 
+            border-radius: 40px; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            width: 100%;
+            font-family: var(--base-font);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1 style="font-size: 1.5rem;">Step by Step Towards EIKEN Grade 5 p50 Verbs</h1>
+</header>
+
+<div class="container" id="quiz-screen">
+    <div class="progress-bar" id="progress">1 / 16</div>
+    <div class="word-display" id="word-text" onclick="speak(this.textContent)" style="cursor:pointer">Loading...</div>
+    <div class="choices-grid" id="choices-container"></div>
+    <div id="feedback" style="margin-top:20px; height: 1.2em; font-weight: bold; font-size: 1.3rem;"></div>
+</div>
+
+<div class="container" id="result-screen">
+    <h2 style="font-size: 1.8rem;">トレーニング終了！</h2>
+    <div style="font-size: 1.2rem;">正解数：<span class="score-num" id="final-score">0</span> / 16</div>
+    <div id="mistake-container" style="display:none;">
+        <h3 style="color: var(--header-gray); margin-top:25px;">もういちど 確認しよう！</h3>
+        <div class="mistake-list" id="mistake-list"></div>
+    </div>
+    <button class="action-btn" onclick="sendEmail()">Tamaki先生に報告する</button>
+    <button class="action-btn" style="background-color: #90a4ae;" onclick="location.reload()">もう一度やる</button>
+</div>
+
+<script>
+// 1. 音声読み上げ関数
+function speak(txt, rate = 0.7) {
+    window.speechSynthesis.cancel();
+    let u = new SpeechSynthesisUtterance(txt);
+    u.lang = "en-US"; 
+    u.rate = rate;
+    window.speechSynthesis.speak(u);
+}
+
+const quizData = [
+    {w:"come", a:"<ruby>来<rt>く</rt></ruby>る", c:["<ruby>行<rt>い</rt></ruby>く","<ruby>走<rt>はし</rt></ruby>る","<ruby>泳<rt>およ</rt></ruby>ぐ"]},
+    {w:"dance", a:"<ruby>踊<rt>おど</rt></ruby>る", c:["<ruby>歌<rt>うた</rt></ruby>う","<ruby>笑<rt>わら</rt></ruby>う","<ruby>寝<rt>ね</rt></ruby>る"]},
+    {w:"fly", a:"<ruby>飛<rt>と</rt></ruby>ぶ", c:["<ruby>歩<rt>ある</rt></ruby>く","<ruby>座<rt>すわ</rt></ruby>る","<ruby>泳<rt>およ</rt></ruby>ぐ"]},
+    {w:"go", a:"<ruby>行<rt>い</rt></ruby>く", c:["<ruby>来<rt>く</rt></ruby>る","<ruby>止<rt>と</rt></ruby>まる","<ruby>帰<rt>かえ</rt></ruby>る"]},
+    {w:"listen", a:"<ruby>聞<rt>き</rt></ruby>く", c:["<ruby>見<rt>み</rt></ruby>る","<ruby>話<rt>はな</rt></ruby>す","<ruby>書<rt>か</rt></ruby>く"]},
+    {w:"live", a:"<ruby>住<rt>す</rt></ruby>む", c:["<ruby>買<rt>か</rt></ruby>う","<ruby>作<rt>つく</rt></ruby>る","<ruby>死<rt>し</rt></ruby>ぬ"]},
+    {w:"look", a:"<ruby>見<rt>み</rt></ruby>る", c:["<ruby>聞<rt>き</rt></ruby>く","<ruby>読<rt>よ</rt></ruby>む","<ruby>触<rt>ふ</rt></ruby>れる"]},
+    {w:"run", a:"<ruby>走<rt>はし</rt></ruby>る", c:["<ruby>歩<rt>ある</rt></ruby>く","<ruby>止<rt>と</rt></ruby>まる","<ruby>飛<rt>と</rt></ruby>ぶ"]},
+    {w:"skate", a:"スケートをする", c:["スキーをする","テニスをする","サッカーをする"]},
+    {w:"sleep", a:"<ruby>眠<rt>ねむ</rt></ruby>る", c:["<ruby>起<rt>お</rt></ruby>きる","<ruby>遊<rt>あそ</rt></ruby>ぶ","<ruby>働<rt>はたら</rt></ruby>く"]},
+    {w:"smile", a:"ほほえむ", c:["<ruby>怒<rt>おこ</rt></ruby>る","<ruby>泣<rt>な</rt></ruby>く","さけぶ"]},
+    {w:"swim", a:"<ruby>泳<rt>およ</rt></ruby>ぐ", c:["<ruby>走<rt>はし</rt></ruby>る","<ruby>潜<rt>もぐ</rt></ruby>る","こぐ"]},
+    {w:"talk", a:"<ruby>話<rt>はな</rt></ruby>す", c:["<ruby>聞<rt>き</rt></ruby>く","<ruby>歌<rt>うた</rt></ruby>う","<ruby>読<rt>よ</rt></ruby>む"]},
+    {w:"wait", a:"<ruby>待<rt>ま</rt></ruby>つ", c:["<ruby>行<rt>い</rt></ruby>く","<ruby>去<rt>さ</rt></ruby>る","<ruby>始<rt>はじ</rt></ruby>める"]},
+    {w:"walk", a:"<ruby>歩<rt>ある</rt></ruby>く", c:["<ruby>走<rt>はし</rt></ruby>る","<ruby>飛<rt>と</rt></ruby>ぶ","<ruby>座<rt>すわ</rt></ruby>る"]},
+    {w:"work", a:"<ruby>働<rt>はたら</rt></ruby>く", c:["<ruby>遊<rt>あそ</rt></ruby>ぶ","<ruby>休<rt>やす</rt></ruby>む","<ruby>寝<rt>ね</rt></ruby>る"]}
+];
+
+let quizQueue = [...quizData].sort(() => Math.random() - 0.5);
+let currentIndex = 0;
+let firstTryCorrectCount = 0;
+let isFirstTry = true;
+let mistakes = [];
+
+function loadQuestion() {
+    const current = quizQueue[currentIndex];
+    document.getElementById('progress').textContent = `${currentIndex + 1} / ${quizQueue.length}`;
+    document.getElementById('word-text').textContent = current.w;
+    document.getElementById('feedback').textContent = "";
+    
+    // 2. 問題を読み上げる
+    speak(current.w);
+
+    const container = document.getElementById('choices-container');
+    container.innerHTML = '';
+    isFirstTry = true;
+
+    const choices = [current.a, ...current.c].sort(() => Math.random() - 0.5);
+
+    choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = choice;
+        btn.onclick = () => checkAnswer(choice, current.a, btn);
+        container.appendChild(btn);
+    });
+}
+
+function checkAnswer(selected, correct, btn) {
+    if (selected === correct) {
+        if (isFirstTry) { firstTryCorrectCount++; }
+        document.getElementById('feedback').style.color = "var(--success-green)";
+        document.getElementById('feedback').textContent = "Excellent! ✨";
+        setTimeout(() => {
+            currentIndex++;
+            if (currentIndex < quizQueue.length) { loadQuestion(); } else { showResult(); }
+        }, 600);
+    } else {
+        if (isFirstTry) {
+            mistakes.push({w: quizQueue[currentIndex].w, a: quizQueue[currentIndex].a});
+            isFirstTry = false;
+        }
+        btn.classList.add('wrong');
+        document.getElementById('feedback').style.color = "var(--error-red)";
+        document.getElementById('feedback').textContent = "Try again!";
+    }
+}
+
+function showResult() {
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('final-score').textContent = firstTryCorrectCount;
+    if (mistakes.length > 0) {
+        document.getElementById('mistake-container').style.display = 'block';
+        document.getElementById('mistake-list').innerHTML = mistakes.map(m => `
+            <div class="mistake-item"><strong>${m.w}</strong><span>${m.a}</span></div>
+        `).join('');
+    }
+}
+
+// 3. 最初にクイズを読み込む実行命令を追加！
+loadQuestion();
+
+function sendEmail() {
+    const teacherEmail = "tamaki@eigostudio-stepforward.com";
+    // タイトルを p50 用に変更
+    const subject = encodeURIComponent("パス単5級 p50 Verbs 学習結果");
+    
+    // HTMLタグ（rubyなど）を取り除いてテキストにする処理
+    const cleanMistakes = mistakes.map(m => {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = m.a;
+        return `・${m.w} (${tempDiv.textContent || tempDiv.innerText})`;
+    }).join("\n");
+
+    let mistakeText = mistakes.length > 0 ? "\n\n■要復習リスト:\n" + cleanMistakes : "\n\nすべて一発正解でした！すばらしい！";
+    
+    // 本文のタイトルも p50 用に変更
+    const body = encodeURIComponent(`Tamaki先生へ\n\n「Step by Step Towards EIKEN Grade 5 p50 Verbs」のトレーニングを完了しました！\n\n結果: ${quizQueue.length}問中 ${firstTryCorrectCount} 問を一発正解。${mistakeText}`);
+    
+    window.location.href = `mailto:${teacherEmail}?subject=${subject}&body=${body}`;
+}
+
+window.onload = loadQuestion;
+
+</script>
+</body>
+</html>
