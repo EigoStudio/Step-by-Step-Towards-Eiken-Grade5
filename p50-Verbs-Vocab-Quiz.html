@@ -51,12 +51,42 @@
 
         .progress-bar { font-size: 1.1rem; color: var(--header-gray); margin-bottom: 15px; font-weight: bold; }
         
+        /* 単語とボタンを並べるスタイル */
+        .word-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 10px 0 30px 0;
+        }
+
         .word-display { 
             font-size: 4.5rem; 
             font-weight: 700; 
             color: var(--header-gray); 
-            margin: 10px 0 30px 0; 
             letter-spacing: 2px;
+            margin: 0;
+        }
+
+        /* スピーカーボタンのスタイル */
+        .speaker-btn {
+            background: #e1f5fe;
+            border: 2px solid #03a9f4;
+            color: #03a9f4;
+            font-size: 2rem;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #0288d1;
+        }
+        .speaker-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0288d1;
         }
 
         .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -114,7 +144,10 @@
 
 <div class="container" id="quiz-screen">
     <div class="progress-bar" id="progress">1 / 16</div>
-    <div class="word-display" id="word-text" onclick="speak(this.textContent)" style="cursor:pointer">Loading...</div>
+    <div class="word-area">
+        <div class="word-display" id="word-text">Loading...</div>
+        <button class="speaker-btn" onclick="speakCurrentWord()">🔊</button>
+    </div>
     <div class="choices-grid" id="choices-container"></div>
     <div id="feedback" style="margin-top:20px; height: 1.2em; font-weight: bold; font-size: 1.3rem;"></div>
 </div>
@@ -131,13 +164,19 @@
 </div>
 
 <script>
-// 1. 音声読み上げ関数
+// 音声読み上げ関数
 function speak(txt, rate = 0.7) {
     window.speechSynthesis.cancel();
     let u = new SpeechSynthesisUtterance(txt);
     u.lang = "en-US"; 
     u.rate = rate;
     window.speechSynthesis.speak(u);
+}
+
+// 現在の単語を読み上げる
+function speakCurrentWord() {
+    const word = document.getElementById('word-text').textContent;
+    speak(word);
 }
 
 const quizData = [
@@ -151,7 +190,7 @@ const quizData = [
     {w:"run", a:"<ruby>走<rt>はし</rt></ruby>る", c:["<ruby>歩<rt>ある</rt></ruby>く","<ruby>止<rt>と</rt></ruby>まる","<ruby>飛<rt>と</rt></ruby>ぶ"]},
     {w:"skate", a:"スケートをする", c:["スキーをする","テニスをする","サッカーをする"]},
     {w:"sleep", a:"<ruby>眠<rt>ねむ</rt></ruby>る", c:["<ruby>起<rt>お</rt></ruby>きる","<ruby>遊<rt>あそ</rt></ruby>ぶ","<ruby>働<rt>はたら</rt></ruby>く"]},
-    {w:"smile", a:"ほほえむ", c:["<ruby>怒<rt>おこ</rt></ruby>る","<ruby>泣<rt>な</rt></ruby>く","さけぶ"]},
+    {w:"smile", a:"ほほえむ", c:["<ruby>怒<rt>おこ</rt></ruby>る","<ruby>泣<rt>泣</rt></ruby>く","さけぶ"]},
     {w:"swim", a:"<ruby>泳<rt>およ</rt></ruby>ぐ", c:["<ruby>走<rt>はし</rt></ruby>る","<ruby>潜<rt>もぐ</rt></ruby>る","こぐ"]},
     {w:"talk", a:"<ruby>話<rt>はな</rt></ruby>す", c:["<ruby>聞<rt>き</rt></ruby>く","<ruby>歌<rt>うた</rt></ruby>う","<ruby>読<rt>よ</rt></ruby>む"]},
     {w:"wait", a:"<ruby>待<rt>ま</rt></ruby>つ", c:["<ruby>行<rt>い</rt></ruby>く","<ruby>去<rt>さ</rt></ruby>る","<ruby>始<rt>はじ</rt></ruby>める"]},
@@ -171,8 +210,7 @@ function loadQuestion() {
     document.getElementById('word-text').textContent = current.w;
     document.getElementById('feedback').textContent = "";
     
-    // 2. 問題を読み上げる
-    speak(current.w);
+    // 自動読み上げ（speak）を削除しました！
 
     const container = document.getElementById('choices-container');
     container.innerHTML = '';
@@ -221,15 +259,10 @@ function showResult() {
     }
 }
 
-// 3. 最初にクイズを読み込む実行命令を追加！
-loadQuestion();
-
 function sendEmail() {
     const teacherEmail = "tamaki@eigostudio-stepforward.com";
-    // タイトルを p50 用に変更
     const subject = encodeURIComponent("パス単5級 p50 Verbs 学習結果");
     
-    // HTMLタグ（rubyなど）を取り除いてテキストにする処理
     const cleanMistakes = mistakes.map(m => {
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = m.a;
@@ -238,12 +271,12 @@ function sendEmail() {
 
     let mistakeText = mistakes.length > 0 ? "\n\n■要復習リスト:\n" + cleanMistakes : "\n\nすべて一発正解でした！すばらしい！";
     
-    // 本文のタイトルも p50 用に変更
     const body = encodeURIComponent(`Tamaki先生へ\n\n「Step by Step Towards EIKEN Grade 5 p50 Verbs」のトレーニングを完了しました！\n\n結果: ${quizQueue.length}問中 ${firstTryCorrectCount} 問を一発正解。${mistakeText}`);
     
     window.location.href = `mailto:${teacherEmail}?subject=${subject}&body=${body}`;
 }
 
+// ページの初期化
 window.onload = loadQuestion;
 
 </script>
