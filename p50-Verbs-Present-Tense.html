@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eiken 5th - Subject & Verb Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #f8f9fa;
+    --text-color: #37474f;
+    --card-bg: #ffffff;
+    --accent-blue: #0288d1;
+    --accent-orange: #f57c00;
+    --accent-green: #43a047;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  /* オンライン用ポップアップ */
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffeb3b; color: #333;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+  }
+  #excellentPopup.show { right: 20px; }
+
+  .header-area { text-align: center; width: 100%; max-width: 800px; margin-bottom: 20px; }
+  .header-area h2 { color: #546e7a; margin: 0; font-size: 1.5rem; }
+
+  .container {
+    background: var(--card-bg); width: 100%; max-width: 800px;
+    padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center; border: 2px solid #e0e0e0;
+  }
+
+  .question-box {
+    margin-bottom: 25px; background-color: #f1f8e9; border-radius: 15px; padding: 25px;
+    border: 1px solid #dcedc8; min-height: 150px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .intro-line { color: #555; font-size: 1.2rem; margin-bottom: 15px; font-weight: 500; }
+  .q-line { font-size: 1.8rem; font-weight: bold; line-height: 1.5; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 5px; }
+
+  .blank-s { color: var(--accent-blue); border-bottom: 3px solid var(--accent-blue); padding: 0 10px; min-width: 80px; display: inline-block; }
+  .blank-v { color: var(--accent-orange); border-bottom: 3px solid var(--accent-orange); padding: 0 10px; min-width: 100px; display: inline-block; }
+
+  .speaker-icon { display: inline-block; cursor: pointer; font-size: 1.8rem; background: none; border: none; visibility: hidden; margin-left: 15px; vertical-align: middle; }
+
+  .selection-label { font-size: 1rem; font-weight: bold; margin-bottom: 10px; display: block; text-align: center; }
+  .choices-section { margin-bottom: 15px; padding: 15px; border-radius: 15px; background: #fafafa; border: 1px solid #eee; }
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+
+  .choice-btn {
+    background-color: white; padding: 12px 20px; border-radius: 12px;
+    font-size: 1.2rem; cursor: pointer; font-weight: bold; transition: all 0.2s; min-width: 100px; border: 2px solid #ddd;
+  }
+  .btn-s { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .btn-s.selected { background-color: var(--accent-blue); color: white; }
+  .btn-v { border-color: var(--accent-orange); color: var(--accent-orange); }
+  .btn-v.selected { background-color: var(--accent-orange); color: white; }
+
+  .correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .wrong-choice { background-color: #ef5350 !important; color: white !important; border-color: #c62828 !important; }
+
+  .action-btn {
+    padding: 15px 50px; font-size: 1.3rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 50px; cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32; font-weight: bold; margin-top: 10px;
+  }
+
+  /* --- 印刷用設定 (Command + P) --- */
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    body { background-color: white; padding: 0; display: block; }
+    .header-area { margin-bottom: 20px; border-bottom: 2px solid #333; text-align: left; }
+    .header-area h2 { font-size: 18pt; color: #000; }
+    #questionNum, .selection-label, .choices-section, .controls, #excellentPopup, .speaker-icon, .action-btn, #interactive-mode { display: none !important; }
+    
+    .container { border: none; box-shadow: none; width: 100%; max-width: none; padding: 0; background: none; }
+    
+    /* 印刷時の問題レイアウト */
+    .print-question { 
+      border-bottom: 1px dashed #ccc; 
+      padding: 12px 0; margin-bottom: 0; display: block; text-align: left; min-height: auto;
+    }
+    .intro-line { font-size: 11pt; margin-bottom: 5px; color: #000; font-weight: bold; }
+    .q-line { font-size: 13pt; display: block; line-height: 1.8; position: relative; }
+    
+    /* 日本語ヒント（とぶ）などを右端に表示 */
+    .jp-verb-hint { float: right; font-size: 10pt; color: #666; font-weight: normal; font-style: italic; }
+
+    .blank-s, .blank-v { 
+      color: transparent !important; 
+      border-bottom: 1px solid #000 !important; 
+      min-width: 90px !important; 
+      margin: 0 3px;
+      display: inline-block;
+    }
+    
+    #all-questions-print { display: block !important; }
+  }
+
+  #all-questions-print { display: none; }
+</style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! 🌟</div>
+
+<div class="header-area">
+  <h2>Eiken Grade 5: Subject & Verb Worksheet</h2>
+  <div id="questionNum">Question 1 / 10</div>
+</div>
+
+<div id="game-container" class="container">
+  <div id="interactive-mode">
+    <div class="question-box" id="questionDisplay"></div>
+    <div id="choices-area">
+      <div class="choices-section">
+        <span class="selection-label" style="color: var(--accent-blue);">● Choose the Subject</span>
+        <div class="choices-grid" id="subjectGrid"></div>
+      </div>
+      <div class="choices-section">
+        <span class="selection-label" style="color: var(--accent-orange);">● Choose the Verb</span>
+        <div class="choices-grid" id="verbGrid"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="action-btn" id="checkBtn" onclick="checkAnswer()">Check Answer</button>
+      <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">Next ➔</button>
+    </div>
+  </div>
+
+  <div id="all-questions-print"></div>
+</div>
+
+<script>
+  // 厳選10問（jpHintを追加）
+  const allQuizData = [
+    { intro: "Sam is from America.", q: "(  S  ) (  V  ) in Tokyo now.", s: "He", v: "lives", sOpt: ["He", "They", "I", "She"], vOpt: ["live", "lives"], jpHint: "すむ" },
+    { intro: "Birds have wings.", q: "(  S  ) (  V  ) in the sky.", s: "They", v: "fly", sOpt: ["They", "It", "She", "We"], vOpt: ["fly", "flies"], jpHint: "とぶ" },
+    { intro: "Kenji is a student.", q: "(  S  ) (  V  ) for the 8:00 train every day.", s: "He", v: "waits", sOpt: ["He", "I", "They", "We"], vOpt: ["wait", "waits"], jpHint: "まつ" },
+    { intro: "Kenji's sister is a good student.", q: "(  S  ) often (  V  ) to the library.", s: "She", v: "goes", sOpt: ["She", "He", "I", "They"], vOpt: ["go", "goes"], jpHint: "いく" },
+    { intro: "Kenji's mother is nice.", q: "(  S  ) always (  V  ) at everyone.", s: "She", v: "smiles", sOpt: ["She", "He", "I", "They"], vOpt: ["smile", "smiles"], jpHint: "ほほえむ" },
+    { intro: "Kenji's father is a doctor.", q: "(  S  ) (  V  ) at the hospital.", s: "He", v: "works", sOpt: ["He", "She", "They", "I"], vOpt: ["work", "works"], jpHint: "はたらく" },
+    { intro: "Kenji's sister is a K-pop fan.", q: "(  S  ) (  V  ) to it every day.", s: "She", v: "listens", sOpt: ["She", "He", "I", "They"], vOpt: ["listen", "listens"], jpHint: "きく" },
+    { intro: "Kenji and Lily are good friends.", q: "(  S  ) often (  V  ) on the phone.", s: "They", v: "talk", sOpt: ["They", "We", "She", "He"], vOpt: ["talk", "talks"], jpHint: "はなす" },
+    { intro: "I am a runner.", q: "(  S  ) usually (  V  ) in the park in the morning.", s: "I", v: "run", sOpt: ["I", "He", "She", "They"], vOpt: ["run", "runs"], jpHint: "はしる" },
+    { intro: "Kathy and Sarah are dancers.", q: "(  S  ) (  V  ) every day.", s: "They", v: "dance", sOpt: ["They", "She", "We", "I"], vOpt: ["dance", "dances"], jpHint: "おどる" }
+  ];
+
+  let currentIdx = 0;
+  let selectedS = null;
+  let selectedV = null;
+  let shuffledQuestions = [];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  // 印刷用リストの生成（Command + P 用）
+  function setupPrintLayout() {
+    const printArea = document.getElementById('all-questions-print');
+    printArea.innerHTML = ""; // 以前の重複を確実にクリア
+    allQuizData.forEach((data, index) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = "print-question";
+      let qText = data.q.replace("(  S  )", `<span class="blank-s"></span>`);
+      qText = qText.replace("(  V  )", `<span class="blank-v"></span>`);
+      qDiv.innerHTML = `
+        <div class="intro-line">(${index + 1}) ${data.intro}</div>
+        <div class="q-line">
+          ${qText}
+          <span class="jp-verb-hint">(${data.jpHint})</span>
+        </div>
+      `;
+      printArea.appendChild(qDiv);
+    });
+  }
+
+  function startApp() {
+    shuffledQuestions = shuffle([...allQuizData]);
+    setupPrintLayout();
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const data = shuffledQuestions[currentIdx];
+    selectedS = null; selectedV = null;
+    document.getElementById('questionNum').textContent = `Question ${currentIdx + 1} / ${shuffledQuestions.length}`;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('nextBtn').style.display = "none";
+    updateQuestionDisplay();
+
+    const sGrid = document.getElementById('subjectGrid');
+    sGrid.innerHTML = "";
+    shuffle([...data.sOpt]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn btn-s";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.btn-s').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedS = opt;
+        updateQuestionDisplay();
+      };
+      sGrid.appendChild(btn);
+    });
+
+    const vGrid = document.getElementById('verbGrid');
+    vGrid.innerHTML = "";
+    data.vOpt.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn btn-v";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.btn-v').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedV = opt;
+        updateQuestionDisplay();
+      };
+      vGrid.appendChild(btn);
+    });
+  }
+
+  function updateQuestionDisplay() {
+    const data = shuffledQuestions[currentIdx];
+    const sText = selectedS ? selectedS : " ___ ";
+    const vText = selectedV ? selectedV : " ___ ";
+    let qHtml = data.q.replace("(  S  )", `<span class="blank-s">${sText}</span>`);
+    qHtml = qHtml.replace("(  V  )", `<span class="blank-v">${vText}</span>`);
+    
+    document.getElementById('questionDisplay').innerHTML = `
+      <div class="intro-line">${data.intro}</div>
+      <div class="q-line">${qHtml} <button id="speakBtn" class="speaker-icon" onclick="speakCurrentSentence()">🔊</button></div>
+    `;
+  }
+
+  function checkAnswer() {
+    if (!selectedS || !selectedV) { alert("Please select both!"); return; }
+    const data = shuffledQuestions[currentIdx];
+    if (selectedS === data.s && selectedV === data.v) {
+      document.querySelector('.btn-s.selected').classList.add('correct-choice');
+      document.querySelector('.btn-v.selected').classList.add('correct-choice');
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "block";
+      document.getElementById('speakBtn').style.visibility = "visible";
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+    } else {
+      if(selectedS !== data.s) document.querySelector('.btn-s.selected').classList.add('wrong-choice');
+      if(selectedV !== data.v) document.querySelector('.btn-v.selected').classList.add('wrong-choice');
+    }
+  }
+
+  function getFemaleVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = ["Google US English", "Microsoft Zira", "Samantha", "Female"];
+    let selected = null;
+    for (let name of preferred) {
+      selected = voices.find(v => (v.lang === 'en-US' || v.lang === 'en_US') && v.name.includes(name));
+      if (selected) break;
+    }
+    return selected || voices.find(v => v.lang.startsWith('en'));
+  }
+
+  function speakCurrentSentence() {
+    window.speechSynthesis.cancel();
+    const data = shuffledQuestions[currentIdx];
+    const speechText = data.intro + " " + data.q.replace("(  S  )", data.s).replace("(  V  )", data.v);
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(speechText);
+      const v = getFemaleVoice();
+      if (v) u.voice = v;
+      u.lang = 'en-US';
+      u.rate = 0.7; 
+      window.speechSynthesis.speak(u);
+    }, 60);
+  }
+
+  window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < shuffledQuestions.length) {
+      loadQuestion();
+    } else {
+      document.getElementById('interactive-mode').innerHTML = `
+        <div style="padding: 20px;">
+          <h2 style="font-size: 2rem; color: var(--accent-green);">🎉 Perfect Clear!</h2>
+          <button class="action-btn" onclick="location.reload()">もう一度やる</button>
+        </div>
+      `;
+    }
+  }
+
+  startApp();
+</script>
+</body>
+</html>

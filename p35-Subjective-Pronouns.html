@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eiken 5th - Pronouns & Be-Verbs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #f0f4f8;
+    --text-color: #37474f;
+    --card-bg: #ffffff;
+    --accent-blue: #0288d1;
+    --accent-pink: #e91e63;
+    --accent-green: #43a047;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 5px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffeb3b; color: #333;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+  }
+  #excellentPopup.show { right: 20px; }
+
+  .header-area { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 800px; margin-bottom: 8px; gap: 15px; }
+
+  .illustration-container {
+    background-color: white; padding: 5px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 180px; height: 130px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .illustration-placeholder { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: contain; }
+
+  .title-wrapper h2 { color: var(--text-color); font-size: 1.1rem; margin: 0; border-bottom: 3px dashed var(--accent-blue); }
+
+  .container {
+    background: var(--card-bg); width: 100%; max-width: 800px;
+    padding: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center; border: 3px solid #fff;
+  }
+
+  /* 問題文エリア：文とスピーカーを横並びに、和訳をその下に */
+  .question-box {
+    margin-bottom: 12px; background-color: #e3f2fd; border-radius: 12px; padding: 15px;
+    border: 2px solid #bbdefb; display: flex; flex-direction: column; align-items: center;
+  }
+  .sentence-line {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: bold; line-height: 1.2;
+  }
+
+  .jp-hint { font-size: 0.95rem; color: #607d8b; font-weight: normal; margin-top: 6px; }
+
+  .blank-s { color: var(--accent-blue); border: 2px solid var(--accent-blue); padding: 2px 8px; border-radius: 5px; background: white; margin: 0 4px; min-width: 55px; display: inline-block; }
+  .blank-b { color: var(--accent-pink); border: 2px solid var(--accent-pink); padding: 2px 8px; border-radius: 5px; background: white; margin: 0 4px; min-width: 55px; display: inline-block; }
+
+  .speaker-icon { display: inline-block; cursor: pointer; font-size: 1.6rem; background: none; border: none; visibility: hidden; margin-left: 10px; padding: 0; line-height: 1; vertical-align: middle; }
+
+  .selection-label { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; display: block; }
+  .choices-section { margin-bottom: 10px; padding: 8px; border-radius: 15px; background: #fafafa; border: 1px solid #eee; }
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+
+  .choice-btn {
+    background-color: white; padding: 8px 16px; border-radius: 10px;
+    font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: all 0.2s;
+    min-width: 75px;
+  }
+  .btn-s { border: 2px solid var(--accent-blue); color: var(--accent-blue); }
+  .btn-s.selected { background-color: var(--accent-blue); color: white; }
+  .btn-b { border: 2px solid var(--accent-pink); color: var(--accent-pink); }
+  .btn-b.selected { background-color: var(--accent-pink); color: white; }
+
+  .correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .wrong-choice { background-color: #ef5350 !important; color: white !important; border-color: #c62828 !important; }
+
+  .controls { display: flex; justify-content: center; gap: 15px; margin-top: 5px; }
+  .action-btn {
+    padding: 10px 40px; font-size: 1.1rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 30px; cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32; font-weight: bold;
+  }
+
+  .nav-btn { background-color: #78909c; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 10px; font-weight: bold; font-size: 0.8rem; }
+
+  @media (min-width: 600px) {
+    .illustration-container { width: 280px; height: 180px; } 
+    .title-wrapper h2 { font-size: 1.5rem; }
+    .sentence-line { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="excellentPopup">Good Job! 🌟</div>
+
+<div class="header-area">
+  <div class="illustration-container">
+    <img id="headerImage" src="" class="illustration-placeholder" alt="Look at the picture">
+  </div>
+  <div class="title-wrapper">
+    <h2>Subject + be Verb</h2>
+    <div id="questionNum" style="color: #555; font-weight: bold; margin-top: 3px;">Q 1/9</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="question-box" id="questionDisplay"></div>
+
+  <div class="choices-section">
+    <span class="selection-label" style="color: var(--accent-blue);">● Choose a Subject (誰が)</span>
+    <div class="choices-grid" id="subjectGrid"></div>
+  </div>
+
+  <div class="choices-section">
+    <span class="selection-label" style="color: var(--accent-pink);">● Choose a be Verb (be動詞)</span>
+    <div class="choices-grid" id="verbGrid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="action-btn" id="checkBtn" onclick="checkAnswer()">答え合わせ</button>
+    <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">次へ ➔</button>
+  </div>
+</div>
+
+<button class="nav-btn" onclick="restartQuiz()">最初からやり直す</button>
+
+<script>
+  const quizData = [
+    { q: "(  S  ) (  B  ) Kenji.", s: "I", b: "am", sOpt: ["I", "You", "He", "She"], bOpt: ["am", "is", "are"], img: "q1-kenji.jpg", jp: "ぼくは ケンジです" },
+    { q: "(  S  ) (  B  ) my friend.", s: "You", b: "are", sOpt: ["I", "You", "He", "It"], bOpt: ["am", "is", "are"], img: "q2-friend.jpg", jp: "きみは ぼくの友達です" },
+    { q: "(  S  ) (  B  ) my father.", s: "He", b: "is", sOpt: ["He", "She", "They", "We"], bOpt: ["am", "is", "are"], img: "q3-father.jpg" },
+    { q: "(  S  ) (  B  ) my mother.", s: "She", b: "is", sOpt: ["He", "She", "It", "They"], bOpt: ["am", "is", "are"], img: "q4-mother.jpg" },
+    { q: "(  S  ) (  B  ) my parents.", s: "They", b: "are", sOpt: ["They", "We", "You", "She"], bOpt: ["am", "is", "are"], img: "q5-parents.jpg" },
+    { q: "(  S  ) (  B  ) your friends.", s: "We", b: "are", sOpt: ["They", "We", "You", "He"], bOpt: ["am", "is", "are"], img: "q6-yourfriends.jpg", jp: "わたしたちは あなたの友達です" },
+    { q: "(  S  ) (  B  ) a cute dog.", s: "It", b: "is", sOpt: ["It", "He", "She", "They"], bOpt: ["am", "is", "are"], img: "q7-dog.jpg" },
+    { q: "(  S  ) (  B  ) my pencil.", s: "It", b: "is", sOpt: ["It", "They", "He", "She"], bOpt: ["am", "is", "are"], img: "qa-pencil.jpg" },
+    { q: "(  S  ) (  B  ) your pencils.", s: "They", b: "are", sOpt: ["They", "It", "We", "You"], bOpt: ["am", "is", "are"], img: "qb-pencils.jpg" }
+  ];
+
+  let currentIdx = 0;
+  let selectedS = null;
+  let selectedB = null;
+  let shuffledData = [];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function restartQuiz() {
+    currentIdx = 0;
+    shuffledData = shuffle([...quizData]);
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const data = shuffledData[currentIdx];
+    selectedS = null;
+    selectedB = null;
+    document.getElementById('headerImage').src = "images-p35-be/" + data.img;
+    document.getElementById('questionNum').textContent = `Q ${currentIdx + 1} / ${shuffledData.length}`;
+    document.getElementById('checkBtn').style.display = "block";
+    document.getElementById('nextBtn').style.display = "none";
+    updateQuestionDisplay();
+
+    const sGrid = document.getElementById('subjectGrid');
+    sGrid.innerHTML = "";
+    shuffle([...data.sOpt]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn btn-s";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.btn-s').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedS = opt;
+        updateQuestionDisplay();
+      };
+      sGrid.appendChild(btn);
+    });
+
+    const bGrid = document.getElementById('verbGrid');
+    bGrid.innerHTML = "";
+    ["am", "is", "are"].forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn btn-b";
+      btn.textContent = opt;
+      btn.onclick = () => {
+        if(document.getElementById('nextBtn').style.display === "block") return;
+        document.querySelectorAll('.btn-b').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedB = opt;
+        updateQuestionDisplay();
+      };
+      bGrid.appendChild(btn);
+    });
+  }
+
+  function updateQuestionDisplay() {
+    const data = shuffledData[currentIdx];
+    const sText = selectedS ? selectedS : " ? ";
+    const bText = selectedB ? selectedB : " ? ";
+    const jpText = data.jp ? `<div class="jp-hint">${data.jp}</div>` : "";
+    
+    let sentenceHtml = data.q.replace("(  S  )", `<span class="blank-s">${sText}</span>`);
+    sentenceHtml = sentenceHtml.replace("(  B  )", `<span class="blank-b">${bText}</span>`);
+    
+    document.getElementById('questionDisplay').innerHTML = `
+      <div class="sentence-line">
+        <span>${sentenceHtml}</span>
+        <button id="speakBtn" class="speaker-icon" onclick="speakCurrentSentence()">🔊</button>
+      </div>
+      ${jpText}
+    `;
+  }
+
+  function checkAnswer() {
+    if (!selectedS || !selectedB) { alert("両方の空欄を選んでね！"); return; }
+    const data = shuffledData[currentIdx];
+    if (selectedS === data.s && selectedB === data.b) {
+      document.querySelector('.btn-s.selected').classList.add('correct-choice');
+      document.querySelector('.btn-b.selected').classList.add('correct-choice');
+      document.getElementById('checkBtn').style.display = "none";
+      document.getElementById('nextBtn').style.display = "block";
+      document.getElementById('speakBtn').style.visibility = "visible";
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1500);
+    } else {
+      if(selectedS !== data.s) document.querySelector('.btn-s.selected').classList.add('wrong-choice');
+      if(selectedB !== data.b) document.querySelector('.btn-b.selected').classList.add('wrong-choice');
+    }
+  }
+
+  // --- 音声設定：ご提示いただいたコードを反映 ---
+
+  function getFemaleVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = ["Google US English", "Microsoft Zira", "Samantha", "Female"];
+    let selected = null;
+    for (let name of preferred) {
+      selected = voices.find(v => (v.lang === 'en-US' || v.lang === 'en_US') && v.name.includes(name));
+      if (selected) break;
+    }
+    return selected || voices.find(v => v.lang.startsWith('en'));
+  }
+
+  function speakCurrentSentence() {
+    window.speechSynthesis.cancel();
+    
+    const data = shuffledData[currentIdx];
+    const speechText = data.q.replace("(  S  )", data.s).replace("(  B  )", data.b);
+    
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(speechText);
+      const v = getFemaleVoice();
+      if (v) u.voice = v;
+      u.lang = 'en-US';
+      u.rate = 0.7; // 聞きやすいゆっくり速度
+      window.speechSynthesis.speak(u);
+    }, 60);
+  }
+
+  window.speechSynthesis.onvoiceschanged = () => { window.speechSynthesis.getVoices(); };
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < shuffledData.length) loadQuestion();
+    else {
+      document.querySelector('.container').innerHTML = "<h2>🎉 Amazing! All Clear!</h2><button class='action-btn' onclick='location.reload()'>最初から</button>";
+    }
+  }
+
+  restartQuiz();
+</script>
+</body>
+</html>
