@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eiken 5th - Master Course</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg-color: #f8f9fa;
+    --text-color: #37474f;
+    --card-bg: #ffffff;
+    --accent-blue: #0288d1;
+    --accent-purple: #7b1fa2;
+    --accent-green: #43a047;
+    --main-font: "Zen Maru Gothic", sans-serif;
+  }
+
+  * { font-family: var(--main-font); box-sizing: border-box; }
+  body { background-color: var(--bg-color); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+  #excellentPopup {
+    position: fixed; top: 20px; right: -200px; background-color: #ffeb3b; color: #333;
+    padding: 10px 25px; border-radius: 50px; font-weight: bold; font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: right 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+  }
+  #excellentPopup.show { right: 20px; }
+
+  .header-area { text-align: center; width: 100%; max-width: 800px; margin-bottom: 20px; }
+  .header-area h2 { color: #546e7a; margin: 0; font-size: 1.5rem; }
+
+  .container {
+    background: var(--card-bg); width: 100%; max-width: 800px;
+    padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center; border: 2px solid #e1e8ed;
+  }
+
+  .step-indicator {
+    display: inline-block; padding: 5px 15px; border-radius: 20px;
+    font-weight: bold; margin-bottom: 15px; font-size: 0.9rem;
+  }
+  .step-concept { background-color: #e3f2fd; color: #1565c0; }
+  .step-practice { background-color: #f3e5f5; color: #7b1fa2; }
+
+  .question-box {
+    margin-bottom: 25px; border-radius: 15px; padding: 25px;
+    border: 1px solid #ddd; min-height: 140px; display: flex; flex-direction: column; justify-content: center;
+  }
+  .q-line { font-size: 1.6rem; font-weight: bold; line-height: 1.5; margin-bottom: 10px; }
+  .hint-line { color: #d32f2f; font-size: 1.1rem; margin-bottom: 10px; font-weight: bold; }
+
+  .blank { border-bottom: 3px solid #ccc; padding: 0 10px; min-width: 120px; display: inline-block; color: #e65100; }
+
+  .choices-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 20px; }
+
+  .choice-btn {
+    background-color: white; padding: 15px 25px; border-radius: 12px;
+    font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: all 0.2s; 
+    border: 2px solid #ddd; min-width: 160px;
+  }
+  .choice-btn:hover { border-color: #999; }
+  .correct-choice { background-color: var(--accent-green) !important; color: white !important; border-color: var(--accent-green) !important; }
+  .wrong-choice { background-color: #ef5350 !important; color: white !important; border-color: #c62828 !important; }
+
+  .action-btn {
+    padding: 15px 50px; font-size: 1.3rem; background-color: var(--accent-green);
+    color: white; border: none; border-radius: 50px; cursor: pointer;
+    box-shadow: 0 4px 0 #2e7d32; font-weight: bold; margin-top: 20px;
+  }
+
+  .report-area { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+  .report-btn { padding: 12px 25px; border-radius: 10px; font-weight: bold; cursor: pointer; border: none; width: 250px; color: white; font-size: 1rem; }
+  .btn-email { background-color: #546e7a; }
+  .btn-line { background-color: #06C755; }
+</style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! 🌟</div>
+
+<div class="header-area">
+  <h2>英検5級：現在形 vs 現在進行形</h2>
+  <div id="questionNum">Question 1 / 16</div>
+</div>
+
+<div id="game-container" class="container">
+  <div id="stepTag" class="step-indicator"></div>
+  
+  <div class="question-box" id="qBox">
+    <div id="hintDisplay" class="hint-line"></div>
+    <div id="questionDisplay" class="q-line"></div>
+  </div>
+
+  <div id="choicesArea">
+    <div class="choices-grid" id="choicesGrid"></div>
+  </div>
+
+  <div class="controls">
+    <button class="action-btn" id="nextBtn" onclick="nextQuestion()" style="display:none; background-color: #ff9800; box-shadow: 0 4px 0 #e65100;">Next ➔</button>
+  </div>
+</div>
+
+<script>
+  let correctCount = 0;
+  let currentIdx = 0;
+  let quizList = [];
+
+  // 前半：概念理解
+  const conceptData = [
+    { hint: "「いつもしている習慣」を表すのはどちら？", q: "習慣を表すのは...", ans: "現在形", opt: ["現在形", "現在進行形"] },
+    { hint: "「今、まさにしていること」を表すのはどちら？", q: "今何してるかを表すのは...", ans: "現在進行形", opt: ["現在形", "現在進行形"] },
+    { hint: "sometimes, often, usually, alwaysを使うのはどちら？", q: "頻度を表す言葉と一緒に使うのは...", ans: "現在形", opt: ["現在形", "現在進行形"] },
+    { hint: "now という言葉と一緒に使うのはどちら？", q: "now と一緒に使うのは...", ans: "現在進行形", opt: ["現在形", "現在進行形"] },
+    { hint: "I usually walk to school. これはどちらの意味？", q: "I usually walk to school.", ans: "「習慣」を表す現在形", opt: ["「習慣」を表す現在形", "「今何してる」を表す現在進行形"] },
+    { hint: "I am walking in the park now. これはどちらの意味？", q: "I am walking in the park now.", ans: "「今何してる」を表す現在進行形", opt: ["「習慣」を表す現在形", "「今何してる」を表す現在進行形"] },
+    { hint: "「住んでいる(live)」はずっと続く状態。どちらの形を使う？", q: "I (   ) in Tokyo.", ans: "live (現在形)", opt: ["live (現在形)", "am living (現在進行形)"] },
+    { hint: "be動詞 + ~ing の形にするのはどちら？", q: "be動詞 + ~ing になるのは...", ans: "現在進行形", opt: ["現在形", "現在進行形"] }
+  ];
+
+  // 後半：実践演習（全16動詞を網羅）
+  const practiceData = [
+    { q: "Look! A cat (   ) into the room.", ans: "is walking", opt: ["is walking", "walks", "walk", "are walking"] },
+    { q: "The boys (   ) in the park now.", ans: "are running", opt: ["are running", "run", "runs", "is running"] },
+    { q: "My sister (   ) to the party now.", ans: "is coming", opt: ["is coming", "comes", "come", "are coming"] },
+    { q: "The girls (   ) at the party now.", ans: "are dancing", opt: ["are dancing", "dance", "dances", "is dancing"] },
+    { q: "Look! Birds (   ) over the sea.", ans: "are flying", opt: ["are flying", "fly", "flies", "is flying"] },
+    { q: "He usually (   ) to the library on Sundays.", ans: "goes", opt: ["goes", "is going", "go", "going"] },
+    { q: "I often (   ) to music in my room.", ans: "listen", opt: ["listen", "am listening", "listens", "listening"] },
+    { q: "Look! The dog (   ) at us.", ans: "is looking", opt: ["is looking", "looks", "look", "are looking"] },
+    { q: "Ken (   ) on the ice now.", ans: "is skating", opt: ["is skating", "skates", "skate", "are skating"] },
+    { q: "Listen! The baby (   ).", ans: "is sleeping", opt: ["is sleeping", "sleeps", "sleep", "are sleeping"] },
+    { q: "My mother always (   ) at everyone.", ans: "smiles", opt: ["smiles", "is smiling", "smile", "smiling"] },
+    { q: "We (   ) in the pool now.", ans: "are swimming", opt: ["are swimming", "swim", "swims", "is swimming"] },
+    { q: "They (   ) on the phone now.", ans: "are talking", opt: ["are talking", "talk", "talks", "is talking"] },
+    { q: "Wait! We (   ) for the bus now.", ans: "are waiting", opt: ["are waiting", "wait", "waits", "is waiting"] },
+    { q: "My father (   ) at the office every day.", ans: "works", opt: ["works", "is working", "work", "working"] },
+    { q: "I (   ) in a big house.", ans: "live", opt: ["live", "am living", "lives", "is living"] }
+  ];
+
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function startApp() {
+    const selectedPractice = shuffle([...practiceData]).slice(0, 8);
+    quizList = [...conceptData, ...selectedPractice];
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const data = quizList[currentIdx];
+    const isConcept = currentIdx < 8;
+    
+    document.getElementById('questionNum').textContent = `Question ${currentIdx + 1} / 16`;
+    document.getElementById('nextBtn').style.display = "none";
+    
+    const tag = document.getElementById('stepTag');
+    const qBox = document.getElementById('qBox');
+    
+    if (isConcept) {
+      tag.textContent = "Step 1: ルールの確認";
+      tag.className = "step-indicator step-concept";
+      qBox.style.backgroundColor = "#fffde7";
+      document.getElementById('hintDisplay').textContent = "💡 " + data.hint;
+    } else {
+      tag.textContent = "Step 2: 実戦テスト (No Hint!)";
+      tag.className = "step-indicator step-practice";
+      qBox.style.backgroundColor = "#f3e5f5";
+      document.getElementById('hintDisplay').textContent = "";
+    }
+
+    document.getElementById('questionDisplay').innerHTML = data.q.replace("(   )", `<span class="blank"> ? </span>`);
+
+    const grid = document.getElementById('choicesGrid');
+    grid.innerHTML = "";
+    
+    shuffle([...data.opt]).forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = "choice-btn";
+      btn.textContent = opt;
+      btn.onclick = () => checkAnswer(btn, opt, data.ans);
+      grid.appendChild(btn);
+    });
+  }
+
+  function checkAnswer(btn, selected, correct) {
+    if (document.getElementById('nextBtn').style.display === "block") return;
+
+    if (selected === correct) {
+      correctCount++;
+      btn.classList.add('correct-choice');
+      document.getElementById('questionDisplay').innerHTML = quizList[currentIdx].q.replace("(   )", `<span class="blank" style="color:var(--accent-green)">${correct}</span>`);
+      
+      const popup = document.getElementById('excellentPopup');
+      popup.classList.add('show');
+      setTimeout(() => popup.classList.remove('show'), 1200);
+      
+      document.getElementById('nextBtn').style.display = "block";
+    } else {
+      btn.classList.add('wrong-choice');
+      setTimeout(() => btn.classList.remove('wrong-choice'), 500);
+    }
+  }
+
+  function sendEmail() {
+    const name = prompt("お名前を入力してください") || "生徒";
+    const body = `${name}さんが「現在形 vs 現在進行形」を完了しました！\n成績: 16問中 ${correctCount}問正解`;
+    const subject = encodeURIComponent("英検5級 演習報告");
+    const mailto = `mailto:tamaki@eigostudio-stepforward.com?subject=${subject}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailto;
+  }
+
+  function copyForLine() {
+    const name = prompt("お名前を入力してください") || "生徒";
+    const text = `${name}：英検5級 演習報告\n【現在形 vs 現在進行形】\n正解数: ${correctCount} / 16\n完了しました！`;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("LINE用の報告文をコピーしました！LINEに貼り付けて送ってください。");
+    });
+  }
+
+  function nextQuestion() {
+    currentIdx++;
+    if (currentIdx < quizList.length) {
+      loadQuestion();
+    } else {
+      document.getElementById('game-container').innerHTML = `
+        <div style="padding: 20px;">
+          <h1 style="font-size: 3rem;">🏆</h1>
+          <h2 style="color: var(--accent-purple);">16問コンプリート！</h2>
+          <p style="font-size: 1.5rem; font-weight: bold;">正解数: ${correctCount} / 16</p>
+          
+          <div class="report-area">
+            <p>結果をtamaki先生に報告しよう！</p>
+            <button class="report-btn btn-email" onclick="sendEmail()">📧 メールで送る</button>
+            <button class="report-btn btn-line" onclick="copyForLine()">💬 LINE用にコピー</button>
+          </div>
+          
+          <button class="action-btn" style="margin-top:30px;" onclick="location.reload()">もう一度やる</button>
+        </div>
+      `;
+    }
+  }
+
+  startApp();
+</script>
+</body>
+</html>
