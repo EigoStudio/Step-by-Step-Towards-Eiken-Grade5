@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p52 SVO 並べ替え問題</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --green: #4CAF50;
+            --yellow: #FFEB3B;
+            --soft-pink: #FFC1E3;
+            --grey: #9E9E9E;
+            --black: #333333;
+            --white: #ffffff;
+        }
+        body {
+            font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: #f0f2f0;
+            color: var(--black);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .container { max-width: 700px; width: 100%; }
+        h1 { color: var(--green); text-align: center; border-bottom: 3px solid var(--yellow); }
+        
+        .score-board {
+            position: sticky; top: 10px; z-index: 100;
+            background: var(--white); padding: 10px 20px;
+            border-radius: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-bottom: 20px; font-weight: bold; border: 2px solid var(--green);
+        }
+
+        .quiz-item {
+            background: var(--white); border-radius: 15px;
+            padding: 20px; margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 8px solid var(--green);
+        }
+
+        .japanese { font-weight: bold; margin-bottom: 15px; font-size: 1.1em; }
+        
+        .drop-zone {
+            min-height: 60px; border-bottom: 3px dashed var(--grey);
+            margin-bottom: 15px; display: flex; flex-wrap: wrap;
+            gap: 10px; align-items: center; padding: 10px; background: #fffdf0;
+        }
+
+        .word-pool { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+
+        .word {
+            background-color: var(--yellow); border: 2px solid #e0d100;
+            padding: 10px 18px; border-radius: 25px; cursor: pointer;
+            font-weight: bold; transition: transform 0.1s; color: var(--black);
+        }
+        .word.verb { background-color: var(--soft-pink); border-color: #f48fb1; color: var(--black); }
+        .word.used { opacity: 0.2; pointer-events: none; }
+
+        .placed-word {
+            background-color: var(--green); color: white;
+            padding: 10px 18px; border-radius: 25px;
+            cursor: grab; font-weight: bold;
+        }
+        .placed-word.verb { background-color: var(--soft-pink); border: 2px solid #f48fb1; color: var(--black); }
+
+        .controls { display: flex; gap: 10px; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .check-btn { background-color: var(--green); color: white; }
+        .reset-btn { background-color: var(--grey); color: white; }
+        
+        .result-screen { display: none; text-align: left; animation: fadeIn 0.5s; }
+        .final-sentence { font-size: 1.3em; color: var(--green); font-weight: bold; margin: 10px 0; display: inline-block; }
+        
+        .speaker-btn {
+            background: var(--white); font-size: 1.3em; cursor: pointer;
+            border: 2px solid var(--green); border-radius: 50%;
+            width: 42px; height: 42px; color: var(--green); vertical-align: middle; margin-left: 10px;
+        }
+
+        .success-img { max-width: 150px; height: auto; margin-top: 10px; border-radius: 8px; display: block; }
+
+        .report-section {
+            margin-top: 50px; padding: 30px; background: var(--black);
+            color: white; border-radius: 15px; text-align: center; width: 100%;
+        }
+        .mail-btn { background-color: #007bff; color: white; padding: 15px 30px; font-size: 1.1em; text-decoration: none; display: inline-block; border-radius: 10px; margin-top: 15px;}
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="score-board">
+    進捗: <span id="score">0</span> / 16 | ミス: <span id="miss-count" style="color:red;">0</span>
+</div>
+
+<div class="container">
+    <h1>p52 SVO 並べ替え問題</h1>
+    <p style="text-align:center; color: #666;">ピンクの「動詞」に注目して並べよう！</p>
+    <div id="quiz-list"></div>
+
+    <div class="report-section" id="final-report" style="display:none;">
+        <h2>全問クリア！お疲れ様でした。</h2>
+        <p id="final-message"></p>
+        <a id="mail-link" class="mail-btn" href="#">📩 先生に結果を報告する</a>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    { id: 1, ja: "エリーは朝食にサラダを食べます。", correct: ["Ellie", "eats", "salad", "for", "breakfast."], dummy: "eat", img: "eat.jpeg", vPos: 1 },
+    { id: 2, ja: "トーマスはたくさんの水を飲みます。", correct: ["Thomas", "drinks", "a", "lot", "of", "water."], dummy: "drink", img: "drink.jpeg", vPos: 1 },
+    { id: 3, ja: "ユージーンは図書館で数学を勉強します。", correct: ["Eugene", "studies", "math", "in", "the", "library."], dummy: "study", img: "study.jpeg", vPos: 1 },
+    { id: 4, ja: "タイラー先生は上手にギターを弾きます。", correct: ["Mr.", "Tyler", "plays", "the", "guitar", "well."], dummy: "play", img: "play.jpeg", vPos: 2 },
+    { id: 5, ja: "「ドアを開けてください。」", correct: ["Please", "open", "the", "door."], dummy: "opens", img: "open.jpeg", vPos: 1 },
+    { id: 6, ja: "「はじめまして。」", correct: ["Nice", "to", "meet", "you."], dummy: "meeting", img: "meet.jpeg", vPos: 2 },
+    { id: 7, ja: "エリーは猫を飼っています。", correct: ["Ellie", "has", "a", "cat."], dummy: "have", img: "has.jpeg", vPos: 1 },
+    { id: 8, ja: "ポテト先生は英語とスペイン語を話します。", correct: ["Mr.", "Potato", "speaks", "English", "and", "Spanish."], dummy: "speak", img: "speak.jpeg", vPos: 2 },
+    { id: 9, ja: "ノアは夕食後に家族と一緒にテレビを見ます。", correct: ["Noah", "watches", "TV", "with", "his", "family", "after", "dinner."], dummy: "watch", img: "watch.jpeg", vPos: 1 },
+    { id: 10, ja: "タイラー夫人は毎日夕食を作ります。", correct: ["Mrs.", "Tyler", "cooks", "dinner", "everyday."], dummy: "cook", img: "cook.jpeg", vPos: 2 },
+    { id: 11, ja: "ポテト先生は学校で英語を教えています。", correct: ["Mr.", "Potato", "teaches", "English", "at", "school."], dummy: "teach", img: "teach.jpeg", vPos: 2 },
+    { id: 12, ja: "エリーは毎月おばあちゃんに手紙を書きます。", correct: ["Ellie", "writes", "a", "letter", "to", "her", "grandmother", "every", "month."], dummy: "write", img: "write.jpeg", vPos: 1 },
+    { id: 13, ja: "エリーは週末に絵を描きます。", correct: ["Ellie", "draws", "pictures", "on", "weekends."], dummy: "draw", img: "draw.jpeg", vPos: 1 },
+    { id: 14, ja: "ノアは毎日自転車に乗ります。", correct: ["Noah", "rides", "his", "bike", "every", "day."], dummy: "ride", img: "ride.jpeg", vPos: 1 },
+    { id: 15, ja: "タイラー夫人は夕食後に皿を洗います。", correct: ["Mrs.", "Tyler", "washes", "the", "dishes", "after", "dinner."], dummy: "wash", img: "wash.jpeg", vPos: 2 },
+    { id: 16, ja: "生徒たちは学校で社会、数学、英語、理科を学びます。", correct: ["Students", "learn", "social", "studies,", "math,", "English", "and", "science", "at", "school."], dummy: "learning", img: "learn.jpeg", vPos: 1 }
+];
+
+let solvedCount = 0;
+let totalMisses = 0;
+
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+quizData.forEach((data, index) => {
+    const item = document.createElement('div');
+    item.className = 'quiz-item';
+    item.id = `item-${data.id}`;
+    
+    let allWords = [...data.correct, data.dummy];
+    let shuffled = shuffle(allWords.map(w => ({ text: w, isVerb: (w === data.correct[data.vPos] || w === data.dummy) })));
+
+    item.innerHTML = `
+        <div class="japanese">${index + 1}. ${data.ja}</div>
+        <div class="main-content" id="content-${data.id}">
+            <div class="drop-zone" id="drop-${data.id}"></div>
+            <div class="word-pool" id="pool-${data.id}"></div>
+            <div class="controls">
+                <button class="check-btn" onclick="checkAnswer(${data.id})">答えあわせ</button>
+                <button class="reset-btn" onclick="resetQuiz(${data.id})">リセット</button>
+            </div>
+        </div>
+        <div class="result-screen" id="result-${data.id}">
+            <div>
+                <span class="final-sentence">${data.correct.join(' ')}</span>
+                <button class="speaker-btn" onclick="speak('${data.correct.join(' ').replace(/[.,]/g, '')}')">🔊</button>
+            </div>
+            <img src="images-p52/${data.img}" class="success-img" alt="正解画像">
+        </div>
+    `;
+    document.getElementById('quiz-list').appendChild(item);
+
+    new Sortable(document.getElementById(`drop-${data.id}`), {
+        animation: 150,
+        ghostClass: 'sortable-ghost'
+    });
+
+    renderPool(data.id, shuffled);
+});
+
+function renderPool(id, words) {
+    const pool = document.getElementById(`pool-${id}`);
+    pool.innerHTML = '';
+    words.forEach((w, idx) => {
+        const span = document.createElement('div');
+        span.className = `word ${w.isVerb ? 'verb' : ''}`;
+        span.textContent = w.text;
+        span.onclick = () => {
+            if(span.classList.contains('used')) return;
+            span.classList.add('used');
+            const placed = document.createElement('div');
+            placed.className = `placed-word ${w.isVerb ? 'verb' : ''}`;
+            placed.textContent = w.text;
+            placed.onclick = () => { span.classList.remove('used'); placed.remove(); };
+            document.getElementById(`drop-${id}`).appendChild(placed);
+        };
+        pool.appendChild(span);
+    });
+}
+
+function resetQuiz(id) {
+    document.getElementById(`drop-${id}`).innerHTML = '';
+    document.querySelectorAll(`#pool-${id} .word`).forEach(w => w.classList.remove('used'));
+}
+
+function checkAnswer(id) {
+    const userWords = Array.from(document.getElementById(`drop-${id}`).children).map(c => c.textContent);
+    const correctWords = quizData.find(d => d.id === id).correct;
+
+    if (userWords.join(' ') === correctWords.join(' ')) {
+        document.getElementById(`content-${id}`).style.display = 'none';
+        document.getElementById(`result-${id}`).style.display = 'block';
+        solvedCount++;
+        document.getElementById('score').textContent = solvedCount;
+        if(solvedCount === 16) showFinalReport();
+    } else {
+        totalMisses++;
+        document.getElementById('miss-count').textContent = totalMisses;
+        alert("おしい！動詞の形や、並び順をチェックしてね。");
+    }
+}
+
+function showFinalReport() {
+    document.getElementById('final-report').style.display = 'block';
+    const message = totalMisses === 0 
+        ? "完璧です！一度も間違えずに全問正解しました！" 
+        : `16問すべてクリアしました！（ミス：${totalMisses}回）`;
+    
+    document.getElementById('final-message').textContent = message;
+
+    const mailLink = document.getElementById('mail-link');
+    const body = `英検5級並べ替えクイズの結果報告です。\n\n全16問クリア！\n合計ミス回数: ${totalMisses}回\n\n${totalMisses === 0 ? 'ノーミスでした！' : '次はノーミスを目指して頑張ります！'}`;
+    mailLink.href = `mailto:tamaki@eigostudio-stepforward.com?subject=クイズ結果報告&body=${encodeURIComponent(body)}`;
+}
+
+function speak(text) {
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.lang = 'en-US';
+    uttr.rate = 0.8;
+    window.speechSynthesis.speak(uttr);
+}
+</script>
+</body>
+</html>
