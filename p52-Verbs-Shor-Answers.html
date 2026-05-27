@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英検5級：ショートアンサー（Short Answers）達人になろう！</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2e7d32;     /* ベースの深緑 */
+            --light-green: #a1887f;       /* 補助の茶色系 */
+            --accent-brown: #8d6e63;      /* 濃い茶色 */
+            --accent-yellow: #fdd835;     /* アクセントの黄色 */
+            --bg-yellow-light: #fefde8;   /* 薄い黄色（ヒント用） */
+            --bg-color: #f4f6f4;          /* 薄いグレー（背景） */
+            --card-bg: #ffffff;
+            --text-color: #3e2723;        /* 濃い茶色の文字 */
+            --gray-border: #cfd8dc;
+            --gray-light: #f5f7f8;        /* シチュエーション用薄グレー */
+        }
+
+        * { box-sizing: border-box; font-family: "Zen Maru Gothic", sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-color), #e8ebe8);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 900px; width: 100%; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-green); font-size: 1.6rem; margin-bottom: 5px; line-height: 1.4; font-weight: 700; }
+        
+        .progress-bar {
+            width: 100%; height: 12px; background-color: #cbd5e1;
+            border-radius: 6px; margin-bottom: 25px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background-color: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 2px solid #fff;
+            text-align: center; display: none; animation: fadeIn 0.4s ease forwards;
+        }
+        .card.active { display: block; }
+
+        .hint-toggle-btn {
+            background-color: #f5f7f8; border: 1px solid var(--gray-border);
+            color: #546e7a; padding: 6px 15px; border-radius: 20px;
+            font-size: 0.9rem; font-weight: bold; cursor: pointer;
+            margin-bottom: 15px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .hint-toggle-btn:hover { background-color: #eceff1; color: var(--text-color); }
+
+        .hint-box {
+            background: var(--bg-yellow-light); border-left: 5px solid var(--accent-yellow);
+            padding: 12px; border-radius: 10px; font-weight: bold;
+            font-size: 1rem; margin-bottom: 25px; text-align: left;
+            line-height: 1.5; border-top: 1px solid #fef08a; border-right: 1px solid #fef08a; border-bottom: 1px solid #fef08a;
+            display: none; animation: fadeIn 0.3s ease;
+        }
+
+        .situation-display {
+            font-size: 1.3rem; font-weight: bold; color: var(--accent-brown);
+            background: var(--gray-light); padding: 15px 20px; border-radius: 15px;
+            margin-bottom: 20px; text-align: left; line-height: 1.6;
+            border-left: 5px solid var(--accent-brown); border-top: 1px solid var(--gray-border); border-right: 1px solid var(--gray-border); border-bottom: 1px solid var(--gray-border);
+        }
+
+        .q-title {
+            font-size: 1.1rem; background-color: #e2e8f0; padding: 6px 15px;
+            border-radius: 10px; display: inline-block; margin-bottom: 15px; font-weight: bold; color: #455a64;
+        }
+
+        .question-text {
+            font-size: 1.6rem; font-weight: bold; color: var(--primary-green);
+            text-align: center; line-height: 1.6; margin-bottom: 25px;
+            background: #f1f8e9; padding: 12px; border-radius: 15px;
+            border: 2px dashed var(--primary-green);
+        }
+
+        /* 選択肢を綺麗に「横一列」に並べるスタイル */
+        .choices-grid {
+            display: flex; flex-direction: row; gap: 12px; margin-bottom: 20px; justify-content: center; flex-wrap: nowrap;
+        }
+
+        .choice-btn {
+            background-color: #ffffff; border: 2px solid var(--gray-border);
+            padding: 14px 15px; border-radius: 30px; cursor: pointer;
+            font-weight: bold; font-size: 1.1rem; color: var(--text-color);
+            text-align: center; box-shadow: 0 4px 0 var(--gray-border); transition: all 0.1s;
+            line-height: 1.4; flex: 1; min-width: 0; display: flex; justify-content: center; align-items: center;
+        }
+        .choice-btn:hover { background-color: var(--gray-light); border-color: #b0bec5; }
+        .choice-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gray-border); }
+        
+        .choice-btn.correct {
+            background-color: #e8f5e9 !important; border-color: var(--primary-green) !important;
+            color: var(--primary-green) !important; box-shadow: 0 4px 0 #c8e6c9 !important;
+        }
+        .choice-btn.wrong {
+            background-color: #efebe9 !important; border-color: var(--light-green) !important;
+            color: #8d6e63 !important; box-shadow: 0 4px 0 #d7ccc8 !important;
+            opacity: 0.5; pointer-events: none;
+        }
+        .choice-btn.disabled { pointer-events: none; }
+
+        .explanation-box {
+            background-color: #f1f8e9; border-left: 5px solid var(--primary-green);
+            padding: 15px; border-radius: 10px; text-align: left;
+            margin-top: 15px; font-size: 1rem; line-height: 1.5;
+            display: none; animation: fadeIn 0.3s ease;
+        }
+        .explanation-box strong { color: var(--primary-green); }
+
+        .action-nav { display: flex; justify-content: center; margin-top: 25px; }
+        .next-btn {
+            padding: 12px 50px; font-weight: bold;
+            font-size: 1.15rem; border: none; border-radius: 50px; cursor: pointer;
+            color: white; background: var(--primary-green); box-shadow: 0 5px 0 #1b5e20;
+            display: none; transition: 0.1s;
+        }
+        .next-btn:active { transform: translateY(3px); box-shadow: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #excellentPopup {
+            position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background-color: var(--accent-yellow); color: #3e2723; padding: 12px 40px; border-radius: 50px;
+            font-weight: bold; font-size: 1.6rem; box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+        }
+        #excellentPopup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! 🌟</div>
+
+<div class="container">
+    <header>
+        <h1>英検5級：ショートアンサー達人への道 💥<br>お話をしっかり読んで、正しいバブルを見つけ出そう！</h1>
+    </header>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <div class="card" id="card-result">
+        <h2 style="color: var(--primary-green); margin-bottom: 10px;">21問完全コンプリート！おめでとう！ 🎉</h2>
+        <p style="font-weight: bold; color: #5d4037; margin-bottom: 25px;">完全ランダムなバブルの並びにも負けず、Situationを読み解いて全勝できたね！素晴らしい英語力です！</p>
+        <button class="next-btn" style="display:inline-block; background-color: var(--accent-brown); box-shadow: 0 5px 0 #4e342e;" onclick="location.reload()">もういちど 挑戦する 🔄</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- PART 1: be動詞 (5問) ---
+        {
+            title: "Step 1 : be動詞チーム (1/5)",
+            situation: "Ken is a good soccer player. He is in the park now.",
+            question: "Is Ken in the park now?",
+            options: [
+                { text: "Yes, he is.", correct: true },
+                { text: "Yes, he does.", correct: false },
+                { text: "No, he isn't.", correct: false },
+                { text: "No, she isn't.", correct: false }
+            ],
+            exp: "Situationに『He is in the park now（今公園にいる）』とあるので、Yesから始めます。Is（be動詞）の質問なので、一般動詞の does は使わず Yes, he is. が正解！"
+        },
+        {
+            title: "Step 1 : be動詞チーム (2/5)",
+            situation: "Ken is a good soccer player. He is in the park now.",
+            question: "Is Ken a baseball player?",
+            options: [
+                { text: "Yes, he is.", correct: false },
+                { text: "Yes, he does.", correct: false },
+                { text: "No, he isn't.", correct: true },
+                { text: "No, he doesn't.", correct: false }
+            ],
+            exp: "彼はサッカー選手なので、野球選手ですか？には『No』になります。be動詞の質問なので、doesn't トラップを避けて 短縮形の No, he isn't. を選ぼう！"
+        },
+        {
+            title: "Step 1 : be動詞チーム (3/5)",
+            situation: "Ms. Green is a music teacher. She is very kind to her students.",
+            question: "Is Ms. Green a doctor?",
+            options: [
+                { text: "Yes, she is.", correct: false },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she isn't.", correct: true },
+                { text: "No, he isn't.", correct: false }
+            ],
+            exp: "音楽の先生（music teacher）なので医者ではありません（No）。Ms. Greenは女性（she）なので is not の短縮形を使った No, she isn't. が大正解！"
+        },
+        {
+            title: "Step 1 : be動詞チーム (4/5)",
+            situation: "Emi and Tom are classmates. They are in the classroom now.",
+            question: "Are Emi and Tom in the classroom now?",
+            options: [
+                { text: "Yes, they are.", correct: true },
+                { text: "Yes, they do.", correct: false },
+                { text: "No, they aren't.", correct: false },
+                { text: "No, he isn't.", correct: false }
+            ],
+            exp: "教室にいるので Yes！Emi and Tomは2人（複数）なので彼ら（they）に変身します。Areで聞かれているので are で綺麗に受けよう。"
+        },
+        {
+            title: "Step 1 : be動詞チーム (5/5)",
+            situation: "You have a nice cat. The cat is white and very big.",
+            question: "Is the cat small?",
+            options: [
+                { text: "Yes, it is.", correct: false },
+                { text: "Yes, he is.", correct: false },
+                { text: "No, it isn't.", correct: true },
+                { text: "No, it doesn't.", correct: false }
+            ],
+            exp: "猫はとても大きい（very big）とあるので小さくありません（No）。動物は it で受けるので、No, it isn't. が正解です。"
+        },
+
+        // --- PART 2: 現在形・一般動詞 (5問) ---
+        {
+            title: "Step 2 : 一般動詞チーム (1/5)",
+            situation: "Lisa likes playing the piano. She practices it every day.",
+            question: "Does Lisa like playing the piano?",
+            options: [
+                { text: "Yes, she does.", correct: true },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: false },
+                { text: "No, he doesn't.", correct: false }
+            ],
+            exp: "ピアノが好きと書いてあるので Yes。Does（一般動詞チーム）の質問なので、お返事も does で受けるよ！is トラップに気をつけて。"
+        },
+        {
+            title: "Step 2 : 一般動詞チーム (2/5)",
+            situation: "Lisa likes playing the piano. She practices it every day.",
+            question: "Does Lisa play the guitar?",
+            options: [
+                { text: "Yes, she does.", correct: false },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: true },
+                { text: "No, she isn't.", correct: false }
+            ],
+            exp: "弾くのはピアノなのでギターは弾きません（No）。Doesの質問なので、短縮形の doesn't を使って No, she doesn't. と答えよう。sheにdon'tは使えないよ。"
+        },
+        {
+            title: "Step 2 : 一般動詞チーム (3/5)",
+            situation: "My parents live in Tokyo. They often go to the park on weekends.",
+            question: "Do your parents live in Kyoto?",
+            options: [
+                { text: "Yes, they do.", correct: false },
+                { text: "Yes, they are.", correct: false },
+                { text: "No, they don't.", correct: true },
+                { text: "No, they aren't.", correct: false }
+            ],
+            exp: "東京（Tokyo）に住んでいるので京都には住んでいません（No）。parents（複数）➔ they。Doの質問 ➔ don't。しっかり読めたね！"
+        },
+        {
+            title: "Step 2 : 一般動詞チーム (4/5)",
+            situation: "My parents live in Tokyo. They often go to the park on weekends.",
+            question: "Do they go to the park on weekends?",
+            options: [
+                { text: "Yes, they do.", correct: true },
+                { text: "Yes, they are.", correct: false },
+                { text: "No, they don't.", correct: false },
+                { text: "No, he doesn't.", correct: false }
+            ],
+            exp: "週末はよく公園に行く（often go to the park）とあるので Yes！質問が Do で始まっているから do で返すのがルール。"
+        },
+        {
+            title: "Step 2 : 一般動詞チーム (5/5)",
+            situation: "Takuya speaks English very well. He studies it every night.",
+            question: "Does Takuya study English every night?",
+            options: [
+                { text: "Yes, he does.", correct: true },
+                { text: "Yes, he is.", correct: false },
+                { text: "No, he doesn't.", correct: false },
+                { text: "No, she doesn't.", correct: false }
+            ],
+            exp: "毎晩（every night）勉強しているので Yes。Takuyaは男の子なので he、一般動詞の質問なので does を使おう。"
+        },
+
+        // --- PART 3: 現在進行形 (5問) ---
+        {
+            title: "Step 3 : 現在進行形チーム (1/5)",
+            situation: "Look! The boys are running in the school yard right now.",
+            question: "Are the boys running now?",
+            options: [
+                { text: "Yes, they are.", correct: true },
+                { text: "Yes, they do.", correct: false },
+                { text: "No, they aren't.", correct: false },
+                { text: "No, he is.", correct: false }
+            ],
+            exp: "まさに走っている（are running）ので Yes。進行形はbe動詞チームの仲間なので、do ではなく are を選ぼう！"
+        },
+        {
+            title: "Step 3 : 現在進行形チーム (2/5)",
+            situation: "Look! The boys are running in the school yard right now.",
+            question: "Are they studying in the classroom?",
+            options: [
+                { text: "Yes, they are.", correct: false },
+                { text: "Yes, they do.", correct: false },
+                { text: "No, they aren't.", correct: true },
+                { text: "No, they don't.", correct: false }
+            ],
+            exp: "校庭で走っているので、教室で勉強はしていません（No）。進行形の質問（Are）なので、短縮形の aren't で答えよう。"
+        },
+        {
+            title: "Step 3 : 現在進行形チーム (3/5)",
+            situation: "Listen! Saki is singing a beautiful song in her room.",
+            question: "Is Saki singing a song now?",
+            options: [
+                { text: "Yes, she is.", correct: true },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she isn't.", correct: false },
+                { text: "No, he isn't.", correct: false }
+            ],
+            exp: "今歌っているところなので Yes。Saki（女の子）➔ she、Isで聞かれているから is を使っているものが正解！"
+        },
+        {
+            title: "Step 3 : 現在進行形チーム (4/5)",
+            situation: "My father is washing his car in the garden right now.",
+            question: "Is your father sleeping now?",
+            options: [
+                { text: "Yes, he is.", correct: false },
+                { text: "Yes, he does.", correct: false },
+                { text: "No, he isn't.", correct: true },
+                { text: "No, he doesn't.", correct: false }
+            ],
+            exp: "車をゴシゴシ洗っているので寝ていません（No）。father（男1人）➔ he と、be動詞の isn't のコンビを選ぼう。"
+        },
+        {
+            title: "Step 3 : 現在進行形チーム (5/5)",
+            situation: "The dogs are sleeping under the big tree now.",
+            question: "Are the dogs sleeping?",
+            options: [
+                { text: "Yes, they are.", correct: true },
+                { text: "Yes, they do.", correct: false },
+                { text: "No, they aren't.", correct: false },
+                { text: "Yes, it is.", correct: false }
+            ],
+            exp: "犬たちが寝ているので Yes。the dogs は2匹以上（複数）なので、動物でも it ではなく they を使うのが最大のポイント！"
+        },
+
+        // --- PART 4: ミックス総チェック (6問) ---
+        {
+            title: "Step 4 : ミックス総チェック (1/6)",
+            situation: "Kumi has an older brother. His name is Hiro.",
+            question: "Does Kumi have a brother?",
+            options: [
+                { text: "Yes, she does.", correct: true },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, he does.", correct: false }
+            ],
+            exp: "お兄ちゃんがいるので Yes。主語は Kumi（女の子）なので she を使い、一般動詞の Does に合わせて does で答えよう！"
+        },
+        {
+            title: "Step 4 : ミックス総チェック (2/6)",
+            situation: "Kumi has an older brother. His name is Hiro.",
+            question: "Is Hiro Kumi's brother?",
+            options: [
+                { text: "Yes, he is.", correct: true },
+                { text: "Yes, he does.", correct: false },
+                { text: "No, he isn't.", correct: false },
+                { text: "Yes, she is.", correct: false }
+            ],
+            exp: "ヒロはクミのお兄ちゃんなので Yes！今度は Is（be動詞）の質問だから、主語の Hiro（男）に合わせて he is で受けよう。"
+        },
+        {
+            title: "Step 4 : ミックス総チェック (3/6)",
+            situation: "Tom and Ken usually walk to school together every morning.",
+            question: "Do Tom and Ken go to school by bus?",
+            options: [
+                { text: "Yes, they do.", correct: false },
+                { text: "Yes, they are.", correct: false },
+                { text: "No, they don't.", correct: true },
+                { text: "No, they aren't.", correct: false }
+            ],
+            exp: "毎朝歩いている（walk）ので、バスは使いません（No）。一般動詞の Do で聞かれているから don't を使おう！"
+        },
+        {
+            title: "Step 4 : ミックス総チェック (4/6)",
+            situation: "Jane is cooking dinner in the kitchen. It smells very good.",
+            question: "Is Jane cooking dinner now?",
+            options: [
+                { text: "Yes, she is.", correct: true },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she isn't.", correct: false },
+                { text: "Yes, it is.", correct: false }
+            ],
+            exp: "今まさに夕食を作っている（is cooking）ので Yes！進行形の質問なので、be動詞の is を使って答えよう。"
+        },
+        {
+            title: "Step 4 : ミックス総チェック (5/6)",
+            situation: "Jane is cooking dinner in the kitchen. It smells very good.",
+            question: "Does the dinner smell good?",
+            options: [
+                { text: "Yes, it does.", correct: true },
+                { text: "Yes, it is.", correct: false },
+                { text: "No, it doesn't.", correct: false },
+                { text: "Yes, dinner does.", correct: false }
+            ],
+            exp: "良い匂いがする（smells very good）とあるので Yes。smell（匂う）は一般動詞なので does で受けます。dinnerはモノなので it に変身！"
+        },
+        {
+            title: "Step 4 : ミックス総チェック (6/6)",
+            situation: "Alex and Yuka are studying math. The test is tomorrow.",
+            question: "Are Alex and Yuka studying English?",
+            options: [
+                { text: "No, they aren't.", correct: true },
+                { text: "Yes, they are.", correct: false },
+                { text: "No, they don't.", correct: false },
+                { text: "No, she isn't.", correct: false }
+            ],
+            exp: "ラストクリア！彼らが勉強しているのは数学（math）なので英語ではありません（No）。進行形（be動詞チーム）の複数なので No, they aren't. が正解！"
+        }
+    ];
+
+    let currentIdx = 0;
+    const container = document.getElementById('quiz-container');
+
+    // ★完全予測不能：配列をその場で完全に混ぜ合わせるシャッフル関数★
+    function shuffleOptions(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function initApp() {
+        quizData.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = `card ${idx === 0 ? 'active' : ''}`;
+            card.id = `card-${idx}`;
+
+            // ★改良：各問題の選択肢を生成直前に完全シャッフル！配置は100% unpredictableになります★
+            let randomizedOptions = [...q.options];
+            shuffleOptions(randomizedOptions);
+
+            let choicesHtml = '';
+            randomizedOptions.forEach(o => {
+                choicesHtml += `<button class="choice-btn" onclick="selectOption(this, ${o.correct}, ${idx})">${o.text}</button>`;
+            });
+
+            card.innerHTML = `
+                <div class="q-title">${q.title}</div>
+                <div>
+                    <button class="hint-toggle-btn" onclick="toggleHint(${idx})">🔍 ヒントをみる</button>
+                </div>
+                <div class="hint-box" id="hint-box-${idx}">💡 ヒント: ${q.exp.split('。')[0]}。</div>
+                
+                <div class="situation-display"><strong>📖 Situation:</strong><br>${q.situation}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="choices-grid">${choicesHtml}</div>
+                <div class="explanation-box" id="exp-${idx}"></div>
+                <div class="action-nav">
+                    <button class="next-btn" id="next-${idx}" onclick="goNext(${idx})">Next ➔</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        updateProgressBar(0);
+    }
+
+    function toggleHint(idx) {
+        const hintBox = document.getElementById(`hint-box-${idx}`);
+        const btn = event.currentTarget;
+        if (hintBox.style.display === 'block') {
+            hintBox.style.display = 'none';
+            btn.innerHTML = '🔍 ヒントをみる';
+        } else {
+            hintBox.style.display = 'block';
+            btn.innerHTML = '✖ ヒントを閉じる';
+        }
+    }
+
+    function selectOption(btn, isCorrect, idx) {
+        const card = document.getElementById(`card-${idx}`);
+        const buttons = card.querySelectorAll('.choice-btn');
+        const expBox = document.getElementById(`exp-${idx}`);
+        const nextBtn = document.getElementById(`next-${idx}`);
+        const hintToggle = card.querySelector('.hint-toggle-btn');
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            showExcellent();
+            
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('disabled');
+                if(b !== btn) b.style.opacity = "0.4";
+            });
+
+            if(hintToggle) hintToggle.style.display = 'none';
+            const hintBox = document.getElementById(`hint-box-${idx}`);
+            if(hintBox) hintBox.style.display = 'none';
+
+            expBox.innerHTML = `<strong>🎉 解説:</strong> ${quizData[idx].exp}`;
+            expBox.style.display = 'block';
+            nextBtn.style.display = 'inline-block';
+        } else {
+            btn.classList.add('wrong');
+            alert("おしい！上の【Situation（お話）】をもう一度よく読んで、YesかNoかを確認してから、動詞のチームを選び直してみよう！");
+        }
+    }
+
+    function showExcellent() {
+        const popup = document.getElementById('excellentPopup');
+        popup.classList.add('show');
+        setTimeout(() => popup.classList.remove('show'), 1200);
+    }
+
+    function updateProgressBar(step) {
+        const percentage = (step / quizData.length) * 100;
+        document.getElementById('progressFill').style.width = percentage + '%';
+    }
+
+    function goNext(current) {
+        document.getElementById(`card-${current}`).classList.remove('active');
+        currentIdx++;
+        
+        if (currentIdx < quizData.length) {
+            document.getElementById(`card-${currentIdx}`).classList.add('active');
+            updateProgressBar(currentIdx);
+        } else {
+            updateProgressBar(quizData.length);
+            document.getElementById('card-result').classList.add('active');
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
