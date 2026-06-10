@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EIKEN Grade 5: Adjectives & Short Answers - Part 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --accent-brown: #8d6e63;
+            --accent-yellow: #fdd835;
+            --bg-color: #f4f6f4;
+            --card-bg: #ffffff;
+            --text-color: #3e2723;
+            --gray-border: #cfd8dc;
+            --gray-light: #f5f7f8;
+            --error-red: #ff5252;
+        }
+
+        * { box-sizing: border-box; font-family: "Andika", "Zen Maru Gothic", sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-color), #e8ebe8);
+            color: var(--text-color);
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 800px; width: 100%; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { color: var(--primary-green); font-size: 1.5rem; margin-bottom: 5px; line-height: 1.4; font-weight: 700; }
+        
+        .score-counter {
+            font-size: 1.2rem; font-weight: bold; color: #455a64; text-align: center; margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%; height: 12px; background-color: #cbd5e1;
+            border-radius: 6px; margin-bottom: 25px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%; background-color: var(--primary-green);
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 25px; padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05); border: 2px solid #fff;
+            text-align: center; display: none; animation: fadeIn 0.4s ease forwards;
+        }
+        .card.active { display: block; }
+
+        .situation-display {
+            font-size: 1.35rem; font-weight: bold; color: var(--accent-brown);
+            background: var(--gray-light); padding: 20px; border-radius: 15px;
+            margin-bottom: 25px; text-align: left; line-height: 1.6;
+            border-left: 5px solid var(--accent-brown); border-top: 1px solid var(--gray-border); border-right: 1px solid var(--gray-border); border-bottom: 1px solid var(--gray-border);
+        }
+
+        .q-title {
+            font-size: 1rem; background-color: #e2e8f0; padding: 6px 15px;
+            border-radius: 10px; display: inline-block; margin-bottom: 15px; font-weight: bold; color: #455a64;
+        }
+
+        .question-text {
+            font-size: 1.6rem; font-weight: bold; color: var(--primary-green);
+            text-align: center; line-height: 1.6; margin-bottom: 25px;
+            background: #f1f8e9; padding: 15px; border-radius: 15px;
+            border: 2px dashed var(--primary-green);
+        }
+
+        .choices-grid {
+            display: flex; flex-direction: row; gap: 12px; margin-bottom: 20px; justify-content: center; flex-wrap: nowrap;
+        }
+
+        .choice-btn {
+            background-color: #ffffff; border: 2px solid var(--gray-border);
+            padding: 14px 10px; border-radius: 30px; cursor: pointer;
+            font-weight: bold; font-size: 1.15rem; color: var(--text-color);
+            text-align: center; box-shadow: 0 4px 0 var(--gray-border); transition: all 0.1s;
+            line-height: 1.4; flex: 1; min-width: 0; display: flex; justify-content: center; align-items: center;
+        }
+        .choice-btn:hover { background-color: var(--gray-light); border-color: #b0bec5; }
+        .choice-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gray-border); }
+        
+        .choice-btn.correct {
+            background-color: #e8f5e9 !important; border-color: var(--primary-green) !important;
+            color: var(--primary-green) !important; box-shadow: 0 4px 0 #c8e6c9 !important;
+        }
+        .choice-btn.wrong {
+            background-color: #efebe9 !important; border-color: #a1887f !important;
+            color: #8d6e63 !important; box-shadow: 0 4px 0 #d7ccc8 !important;
+            opacity: 0.5; pointer-events: none;
+        }
+        .choice-btn.disabled { pointer-events: none; }
+
+        .action-btn {
+            padding: 15px 40px; font-weight: bold; font-size: 1.2rem;
+            border: none; border-radius: 50px; cursor: pointer; color: white;
+            width: 100%; margin-top: 15px; display: none; transition: 0.1s;
+        }
+        .next-btn { background: var(--primary-green); box-shadow: 0 5px 0 #1b5e20; }
+        .report-btn { background: #0288d1; box-shadow: 0 5px 0 #01579b; display: inline-block; }
+        .action-btn:active { transform: translateY(3px); box-shadow: none; }
+
+        .mistake-list { text-align: left; background: #fafafa; padding: 15px; border-radius: 10px; margin: 20px 0; border: 1px solid #cfd8dc; }
+        .mistake-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 1rem; line-height: 1.4; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #excellentPopup {
+            position: fixed; top: 40px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background-color: var(--accent-yellow); color: #3e2723; padding: 12px 40px; border-radius: 50px;
+            font-weight: bold; font-size: 1.6rem; box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1000;
+        }
+        #excellentPopup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+<div id="excellentPopup">Excellent! 🌟</div>
+
+<div class="container">
+    <header>
+        <h1>Step by Step Towards EIKEN Grade 5 p39<br>Adjectives & Short Answers - Part 2 💥</h1>
+    </header>
+
+    <div class="score-counter">Score: <span id="currentScore">0</span> / 12</div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div id="quiz-container"></div>
+
+    <div class="card" id="card-result">
+        <h2 style="color: var(--primary-green); margin-bottom: 10px;">Part 2 Complete! 🎉</h2>
+        <p style="font-weight: bold; color: #5d4037; margin-bottom: 15px;">
+            Your Score: <span style="font-size: 2rem; color: var(--primary-green);" id="finalScore">0</span> / 12
+        </p>
+        <div id="mistake-container" style="display:none;">
+            <p style="color: var(--error-red); font-weight: bold; text-align: left; margin-bottom: 5px;">Review List:</p>
+            <div class="mistake-list" id="mistake-list"></div>
+        </div>
+        <button class="action-btn report-btn" onclick="sendEmail()">Report to Tamaki-sensei 📨</button>
+        <button class="action-btn next-btn" style="display:inline-block; background-color: var(--accent-brown); box-shadow: 0 5px 0 #4e342e; margin-top: 10px;" onclick="location.reload()">Try Again 🔄</button>
+    </div>
+</div>
+
+<script>
+    const quizData = [
+        // --- Scene 5 ---
+        {
+            title: "Scene 5 (1/3)",
+            situation: "Lily is always busy with her homework after school. But look! Today, she is playing the piano with her friends. She is very happy.",
+            question: "Is Lily always busy with her homework after school?",
+            options: [
+                { text: "Yes, she is.", correct: true },
+                { text: "No, she isn't.", correct: false },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she doesn't.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 5 (2/3)",
+            situation: "Lily is always busy with her homework after school. But look! Today, she is playing the piano with her friends. She is very happy.",
+            question: "Is she playing the guitar now?",
+            options: [
+                { text: "No, she isn't.", correct: true },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, she does.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 5 (3/3)",
+            situation: "Lily is always busy with her homework after school. But look! Today, she is playing the piano with her friends. She is very happy.",
+            question: "Is Lily happy today?",
+            options: [
+                { text: "Yes, she is.", correct: true },
+                { text: "No, she isn't.", correct: false },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she doesn't.", correct: false }
+            ]
+        },
+
+        // --- Scene 6 ---
+        {
+            title: "Scene 6 (1/3)",
+            situation: "The weather is usually nice. Look! Today, the weather is bad. It is raining. But Lily is lucky. She has a yellow umbrella.",
+            question: "Is the weather nice today?",
+            options: [
+                { text: "No, it isn't.", correct: true },
+                { text: "Yes, it is.", correct: false },
+                { text: "No, it doesn't.", correct: false },
+                { text: "Yes, it does.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 6 (2/3)",
+            situation: "The weather is usually nice. Look! Today, the weather is bad. It is raining. But Lily is lucky. She has a yellow umbrella.",
+            question: "Is it raining now?",
+            options: [
+                { text: "Yes, it is.", correct: true },
+                { text: "No, it isn't.", correct: false },
+                { text: "Yes, it does.", correct: false },
+                { text: "No, it doesn't.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 6 (3/3)",
+            situation: "The weather is usually nice. Look! Today, the weather is bad. It is raining. But Lily is lucky. She has a yellow umbrella.",
+            question: "What does Lily have?",
+            options: [
+                { text: "A yellow umbrella.", correct: true },
+                { text: "A blue hat.", correct: false },
+                { text: "A slow cat.", correct: false },
+                { text: "A new bike.", correct: false }
+            ]
+        },
+
+        // --- Scene 7 ---
+        {
+            title: "Scene 7 (1/3)",
+            situation: "She drinks a lot of water every day. Look! Today, she is drinking orange juice at a party. She is eating small cupcakes, too.",
+            question: "Does she drink a lot of water every day?",
+            options: [
+                { text: "Yes, she does.", correct: true },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she isn't.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 7 (2/3)",
+            situation: "She drinks a lot of water every day. Look! Today, she is drinking orange juice at a party. She is eating small cupcakes, too.",
+            question: "Is she drinking water now?",
+            options: [
+                { text: "No, she isn't.", correct: true },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, she does.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 7 (3/3)",
+            situation: "She drinks a lot of water every day. Look! Today, she is drinking orange juice at a party. She is eating small cupcakes, too.",
+            question: "Is Lily eating big cakes now?",
+            options: [
+                { text: "No, she isn't.", correct: true },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, she does.", correct: false }
+            ]
+        },
+
+        // --- Scene 8 ---
+        {
+            title: "Scene 8 (1/3)",
+            situation: "Lily usually reads a thick old book at night. Sometimes she feels a little sad at the end of the story. But look! Tonight, she is writing her own story. She is smiling because it's fun!",
+            question: "Does Lily usually read a new book at night?",
+            options: [
+                { text: "No, she doesn't.", correct: true },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she isn't.", correct: false },
+                { text: "Yes, she is.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 8 (2/3)",
+            situation: "Lily usually reads a thick old book at night. Sometimes she feels a little sad at the end of the story. But look! Tonight, she is writing her own story. She is smiling because it's fun!",
+            question: "Does she sometimes feel sad at the end of the story?",
+            options: [
+                { text: "Yes, she does.", correct: true },
+                { text: "No, she doesn't.", correct: false },
+                { text: "Yes, she is.", correct: false },
+                { text: "No, she isn't.", correct: false }
+            ]
+        },
+        {
+            title: "Scene 8 (3/3)",
+            situation: "Lily usually reads a thick old book at night. Sometimes she feels a little sad at the end of the story. But look! Tonight, she is writing her own story. She is smiling because it's fun!",
+            question: "Is Lily smiling tonight?",
+            options: [
+                { text: "Yes, she is.", correct: true },
+                { text: "No, she isn't.", correct: false },
+                { text: "Yes, she does.", correct: false },
+                { text: "No, she doesn't.", correct: false }
+            ]
+        }
+    ]; // 👈 ここに閉じカッコを復活させました！
+
+    let currentIdx = 0;
+    let firstTryCorrectCount = 0;
+    let isFirstTry = true;
+    let mistakes = [];
+    const container = document.getElementById('quiz-container');
+
+    function shuffleOptions(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function initApp() {
+        quizData.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = `card ${idx === 0 ? 'active' : ''}`;
+            card.id = `card-${idx}`;
+
+            let randomizedOptions = [...q.options];
+            shuffleOptions(randomizedOptions);
+
+            let choicesHtml = '';
+            randomizedOptions.forEach(o => {
+                choicesHtml += `<button class="choice-btn" onclick="selectOption(this, ${o.correct}, ${idx})">${o.text}</button>`;
+            });
+
+            card.innerHTML = `
+                <div class="q-title">${q.title}</div>
+                <div class="situation-display"><strong>📖 Situation:</strong><br>${q.situation}</div>
+                <div class="question-text">${q.question}</div>
+                <div class="choices-grid">${choicesHtml}</div>
+                <div class="action-nav">
+                    <button class="action-btn next-btn" id="next-${idx}" onclick="goNext(${idx})">Next Step ➔</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        updateProgressBar(0);
+    }
+
+    function selectOption(btn, isCorrect, idx) {
+        const card = document.getElementById(`card-${idx}`);
+        const buttons = card.querySelectorAll('.choice-btn');
+        const nextBtn = document.getElementById(`next-${idx}`);
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            showExcellent();
+            
+            if (isFirstTry) {
+                firstTryCorrectCount++;
+                document.getElementById('currentScore').textContent = firstTryCorrectCount;
+            }
+
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('disabled');
+                if(b !== btn) b.style.opacity = "0.4";
+            });
+
+            nextBtn.style.display = 'inline-block';
+        } else {
+            btn.classList.add('wrong');
+            if (isFirstTry) {
+                mistakes.push({ q: quizData[idx].question, s: quizData[idx].title });
+                isFirstTry = false;
+            }
+            alert("Oops! Read the [Situation] carefully again. Check if it's Yes or No, and pick the correct answer!");
+        }
+    }
+
+    function showExcellent() {
+        const popup = document.getElementById('excellentPopup');
+        popup.classList.add('show');
+        setTimeout(() => popup.classList.remove('show'), 1200);
+    }
+
+    function updateProgressBar(step) {
+        const percentage = (step / quizData.length) * 100;
+        document.getElementById('progressFill').style.width = percentage + '%';
+    }
+
+    function goNext(current) {
+        document.getElementById(`card-${current}`).classList.remove('active');
+        currentIdx++;
+        isFirstTry = true;
+        
+        if (currentIdx < quizData.length) {
+            document.getElementById(`card-${currentIdx}`).classList.add('active');
+            updateProgressBar(currentIdx);
+        } else {
+            updateProgressBar(quizData.length);
+            showResultScreen();
+        }
+    }
+
+    function showResultScreen() {
+        document.getElementById('card-result').classList.add('active');
+        document.getElementById('finalScore').textContent = firstTryCorrectCount;
+        
+        if (mistakes.length > 0) {
+            document.getElementById('mistake-container').style.display = 'block';
+            const list = document.getElementById('mistake-list');
+            list.innerHTML = mistakes.map(m => `
+                <div class="mistake-item"><strong>[${m.s}]</strong> ${m.q}</div>
+            `).join('');
+        }
+    }
+
+    function sendEmail() {
+        const teacherEmail = "tamaki@eigostudio-stepforward.com";
+        const subject = encodeURIComponent("EIKEN Grade 5 Adjectives & Short Answers Part 2 Result");
+        
+        const cleanMistakes = mistakes.map(m => `・${m.s}: ${m.q}`).join("\n");
+        let mistakeText = mistakes.length > 0 ? "\n\n■ Review Required:\n" + cleanMistakes : "\n\nPerfect! First-try correct on all questions!";
+        
+        const body = encodeURIComponent(`Dear Tamaki-sensei,\n\nI have finished the "Adjectives & Short Answers Part 2" training!\n\nResult: ${firstTryCorrectCount} / ${quizData.length} (First-try correct)${mistakeText}\n\nThank you!`);
+        
+        window.location.href = `mailto:${teacherEmail}?subject=${subject}&body=${body}`;
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
